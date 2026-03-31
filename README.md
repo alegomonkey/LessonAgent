@@ -1,2 +1,3 @@
 # LessonAgent
-Agentic project
+
+This agent creates a class, lesson plan and assignments. 
