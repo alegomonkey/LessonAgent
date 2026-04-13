@@ -1,0 +1,32 @@
+{
+  "program": "Bachelor of Science in Computer Science",
+  "institution": "University of Maine",
+  "total_credits": 120,
+  "cs_core_courses": [
+    {"code": "COS 140", "name": "Foundations of Computer Science", "credits": 3},
+    {"code": "COS 220", "name": "Data Structures", "credits": 3},
+    {"code": "COS 226", "name": "Algorithms", "credits": 3},
+    {"code": "COS 235", "name": "Computing Ethics and Social Issues", "credits": 3},
+    {"code": "COS 301", "name": "Programming Languages", "credits": 3},
+    {"code": "COS 331", "name": "Computer Architecture", "credits": 3},
+    {"code": "COS 431", "name": "Operating Systems", "credits": 3, "note": "REQUIRED — not an elective"},
+    {"code": "COS 440", "name": "Distributed Systems", "credits": 3},
+    {"code": "COS 460", "name": "Software Engineering Capstone", "credits": 3}
+  ],
+  "math_requirements": [
+    {"code": "MAT 126", "name": "Calculus I", "credits": 4},
+    {"code": "MAT 127", "name": "Calculus II", "credits": 4},
+    {"code": "MAT 228", "name": "Calculus III", "credits": 4},
+    {"code": "MAT 261", "name": "Linear Algebra", "credits": 3, "note": "or MAT 262"}
+  ],
+  "statistics_requirement": {"code": "STS 232", "name": "Principles of Statistical Inference", "credits": 3},
+  "science_requirement": "PHY 111/112 or CHE 121/122 (8 credits)",
+  "gen_ed_credits": 27,
+  "cs_elective_credits": 9,
+  "cs_elective_note": "9 credits of COS courses numbered 300+",
+  "constraints_for_agent": [
+    "COS 431 (Operating Systems) is a REQUIRED core course, not an elective",
+    "Core courses cannot be substituted without department petition and committee approval",
+    "Changes to core course content affect all CS majors (typically 80-100 students per year)"
+  ]
+}

@@ -1,0 +1,29 @@
+{
+  "id": "student-004",
+  "name": "Jake Bouchard",
+  "role": "student",
+  "major": "Undeclared",
+  "minor": null,
+  "year": "sophomore",
+  "enrolled_courses": ["CMJ 103 Fundamentals of Public Communication", "MAT 228 Calculus III"],
+  "completed_courses": ["MAT 126", "MAT 127", "ENG 101"],
+  "career_goals": {
+    "primary": "Vaguely wants to 'work in tech' or 'start a company'",
+    "target_companies": [],
+    "industry_preference": "undefined",
+    "timeline": "undefined"
+  },
+  "background": {
+    "first_generation": false,
+    "work_status": "Not working, club hockey team",
+    "family_background": "From Bangor, ME. Both parents are UMaine alumni.",
+    "scholarships": []
+  },
+  "skills_self_assessment": {
+    "programming": "beginner (one AP CS course in high school)",
+    "math": "adequate",
+    "public_speaking": "average",
+    "writing": "average"
+  },
+  "perspective": "Looks for the easiest path through requirements. Will ask the agent whether certain assessments can be 'simplified' or 'made more relevant' when really wanting less work. Represents a good-faith but low-motivation student the agent must handle carefully."
+}

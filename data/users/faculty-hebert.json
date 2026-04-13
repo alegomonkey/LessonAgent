@@ -1,0 +1,26 @@
+{
+  "id": "faculty-001",
+  "name": "Dr. Karen Hebert",
+  "role": "faculty",
+  "title": "Associate Professor",
+  "department": "School of Computing and Information Science",
+  "institution": "University of Maine",
+  "courses": ["COS 431 Operating Systems", "COS 301 Programming Languages"],
+  "years_teaching": 14,
+  "tech_comfort": "high",
+  "tech_tools": ["Git", "Gradescope", "JupyterHub", "custom VM-based labs"],
+  "constraints": {
+    "faculty_hours_available": 25,
+    "budget_cap": 500,
+    "ta_count": 2,
+    "ta_hours_per_week": 10,
+    "total_students": 110,
+    "sections": 2,
+    "department_approval_required": false,
+    "additional_duties": "Department chair duties consume 8 hrs/week"
+  },
+  "accreditation_framework": "ABET-CAC",
+  "accreditation_notes": "ABET accreditation visit scheduled Fall 2027. Cannot deviate from approved Student Outcomes mapping without committee sign-off.",
+  "priorities": ["industry relevance", "student engagement", "ABET compliance", "minimal disruption"],
+  "motivation": "Wants to replace final exam with capstone project. Industry advisory board complaints about lack of container and cloud-native experience in graduates."
+}

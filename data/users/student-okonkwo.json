@@ -1,0 +1,31 @@
+{
+  "id": "student-003",
+  "name": "Aisha Okonkwo",
+  "role": "student",
+  "major": "Computer Science (MS, thesis track)",
+  "minor": null,
+  "year": "1st year graduate",
+  "enrolled_courses": ["STS 434 Applied Statistics for Data Science"],
+  "ta_assignments": ["COS 431 Operating Systems (TA for Dr. Hebert)"],
+  "completed_courses": ["Undergraduate CS degree from University of Lagos (First Class Honours)"],
+  "career_goals": {
+    "primary": "Research Scientist in Machine Learning / AI Safety",
+    "target_institutions": ["CMU PhD program", "UW PhD program"],
+    "industry_preference": "academia / research lab",
+    "timeline": "PhD application in 1-2 years"
+  },
+  "background": {
+    "first_generation": false,
+    "work_status": "Full funding through research assistantship",
+    "family_background": "International student from Lagos, Nigeria",
+    "scholarships": ["Research Assistantship"]
+  },
+  "skills_self_assessment": {
+    "python": "strong",
+    "machine_learning": "intermediate",
+    "statistics": "intermediate",
+    "operating_systems": "intermediate",
+    "research_methods": "developing"
+  },
+  "perspective": "Sees COS 431 from both sides as TA and as someone needing OS-level understanding for ML systems research (GPU scheduling, memory management for large models). Wants to help modernize the course but cautious about overstepping with Dr. Hebert."
+}

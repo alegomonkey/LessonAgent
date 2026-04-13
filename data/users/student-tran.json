@@ -1,0 +1,31 @@
+{
+  "id": "student-001",
+  "name": "Emily Tran",
+  "role": "student",
+  "major": "Computer Science (BS)",
+  "minor": "Mathematics",
+  "year": "junior",
+  "enrolled_courses": ["COS 431 Operating Systems"],
+  "completed_courses": ["COS 140", "COS 220", "COS 226", "COS 301"],
+  "career_goals": {
+    "primary": "Software Engineer, Cloud Infrastructure",
+    "target_companies": ["AWS", "Cloudflare", "Fastly"],
+    "industry_preference": "cloud infrastructure / systems engineering",
+    "timeline": "2 years post-graduation"
+  },
+  "background": {
+    "first_generation": true,
+    "work_status": "Works 15 hrs/week at campus IT help desk",
+    "family_background": "Parents are Vietnamese immigrants who run a restaurant in Portland, ME",
+    "scholarships": ["Maine Space Grant Consortium"]
+  },
+  "skills_self_assessment": {
+    "c_programming": "intermediate",
+    "linux": "intermediate",
+    "python": "intermediate",
+    "data_structures": "strong",
+    "containers_docker": "curious",
+    "cloud_platforms": "beginner"
+  },
+  "perspective": "Feels COS 431 is the most career-relevant course in the major but notices labs still use bare-metal xv6 with no mention of containers, cgroups, or namespaces. Wants the course to bridge to Linux systems programming used in industry."
+}

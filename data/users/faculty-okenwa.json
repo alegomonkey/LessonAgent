@@ -1,0 +1,26 @@
+{
+  "id": "faculty-004",
+  "name": "Dr. James Okenwa",
+  "role": "faculty",
+  "title": "Professor",
+  "department": "Department of Mathematics and Statistics",
+  "institution": "University of Maine",
+  "courses": ["MAT 228 Calculus III", "STS 434 Applied Statistics for Data Science"],
+  "years_teaching": 22,
+  "tech_comfort": "low",
+  "tech_tools": ["chalk and board", "paper grade submissions"],
+  "constraints": {
+    "faculty_hours_available": null,
+    "budget_cap": null,
+    "ta_count": 1,
+    "ta_hours_per_week": 10,
+    "total_students": 70,
+    "sections": 2,
+    "department_approval_required": false,
+    "additional_duties": "Tenured. No institutional pressure. Participates only because Dean asked."
+  },
+  "accreditation_framework": null,
+  "accreditation_notes": "MAT 228 is a service course for engineering and science programs. Not directly accredited but feeds into ABET-accredited programs.",
+  "priorities": ["mathematical rigor", "proven methods", "skeptical of technology-driven pedagogy"],
+  "motivation": "Agreed to participate only because Dean asked. Willing to listen but pushes back on anything compromising rigor. Secretly curious about modernizing STS 434 for industry data science roles."
+}

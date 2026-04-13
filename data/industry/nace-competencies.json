@@ -1,0 +1,55 @@
+{
+  "framework": "NACE Career Readiness Competencies",
+  "source": "National Association of Colleges and Employers, supplemented by Maine employer surveys",
+  "date_compiled": "2026-01-01",
+  "competencies": [
+    {
+      "name": "Critical Thinking",
+      "description": "Identify and respond to needs based upon an understanding of situational context and logical analysis of relevant information",
+      "relevant_courses": ["All courses"],
+      "agent_notes": "Assessed through problem-solving in exams and projects"
+    },
+    {
+      "name": "Communication",
+      "description": "Clearly and effectively exchange information, ideas, facts, and perspectives with persons inside and outside of an organization",
+      "relevant_courses": ["CMJ 103", "All courses (written reports)"],
+      "agent_notes": "Primary focus of CMJ 103; assessed through presentations and written work in other courses"
+    },
+    {
+      "name": "Teamwork",
+      "description": "Build and maintain collaborative relationships to work effectively toward common goals, while appreciating diverse viewpoints and shared responsibilities",
+      "relevant_courses": ["COS 431 (pair lab)", "CHE 360 (group project)", "STS 434 (team project)"],
+      "agent_notes": "Typically assessed through group projects; often underweighted in STEM courses"
+    },
+    {
+      "name": "Technology",
+      "description": "Understand and leverage technologies ethically to enhance efficiencies, complete tasks, and accomplish goals",
+      "relevant_courses": ["COS 431", "STS 434"],
+      "agent_notes": "CS and data science courses inherently address this; gen-ed courses may not"
+    },
+    {
+      "name": "Career & Self-Development",
+      "description": "Proactively develop oneself and one's career through continual personal and professional learning, awareness of one's strengths and weaknesses, navigation of career opportunities, and networking",
+      "relevant_courses": [],
+      "agent_notes": "PRIMARY ALIGNMENT TARGET for the agent — this competency is rarely explicitly addressed in courses but is the core of what the agent helps students develop"
+    },
+    {
+      "name": "Equity & Inclusion",
+      "description": "Demonstrate the awareness, attitude, knowledge, and skills required to equitably engage and include people from different local and global cultures",
+      "relevant_courses": ["CMJ 103 (audience analysis)", "STS 434 (algorithmic fairness)"],
+      "agent_notes": "Addressed in communication courses through audience analysis; in data science through fairness/bias topics"
+    },
+    {
+      "name": "Leadership",
+      "description": "Recognize and capitalize on personal and team strengths to achieve organizational goals",
+      "relevant_courses": ["CMJ 103 (group presentation)"],
+      "agent_notes": "Often implicit in group work; rarely explicitly taught or assessed"
+    },
+    {
+      "name": "Professionalism",
+      "description": "Knowing work environments differ greatly, understand and demonstrate effective work habits, and act in the interest of the larger community and workplace",
+      "relevant_courses": ["All courses"],
+      "agent_notes": "Assessed through deadlines, academic integrity, and professional conduct"
+    }
+  ]
+}

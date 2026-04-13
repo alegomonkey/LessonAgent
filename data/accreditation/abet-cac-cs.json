@@ -1,0 +1,79 @@
+{
+  "framework": "ABET-CAC",
+  "full_name": "ABET Computing Accreditation Commission",
+  "program": "Computer Science (BS)",
+  "institution": "University of Maine",
+  "next_review": "Fall 2027",
+  "student_outcomes": [
+    {
+      "id": "SO-1",
+      "text": "Analyze a complex computing problem and apply principles of computing and other relevant disciplines to identify solutions",
+      "courses_assessed": ["COS 226", "COS 431", "COS 440"],
+      "cos431_mapping": ["LO-1", "LO-2", "LO-4"],
+      "assessment_instruments": ["Midterm exams", "Final exam", "Lab assignments"]
+    },
+    {
+      "id": "SO-2",
+      "text": "Design, implement, and evaluate a computing-based solution to meet a given set of computing requirements in the context of the program's discipline",
+      "courses_assessed": ["COS 301", "COS 431", "COS 460"],
+      "cos431_mapping": ["LO-2", "LO-3", "LO-5"],
+      "assessment_instruments": ["Lab assignments (implementation projects)"]
+    },
+    {
+      "id": "SO-3",
+      "text": "Communicate effectively in a variety of professional contexts",
+      "courses_assessed": ["COS 431", "COS 460", "ENG 317"],
+      "cos431_mapping": ["LO-6"],
+      "assessment_instruments": ["Written reports"]
+    },
+    {
+      "id": "SO-4",
+      "text": "Recognize professional responsibilities and make informed judgments in computing practice based on legal and ethical principles",
+      "courses_assessed": ["COS 235", "COS 460"],
+      "cos431_mapping": [],
+      "assessment_instruments": []
+    },
+    {
+      "id": "SO-5",
+      "text": "Function effectively as a member or leader of a team engaged in activities appropriate to the program's discipline",
+      "courses_assessed": ["COS 431", "COS 460", "COS 497"],
+      "cos431_mapping": ["LO-5"],
+      "assessment_instruments": ["Lab 6 (pair project)"]
+    },
+    {
+      "id": "SO-6",
+      "text": "Apply computer science theory and software development fundamentals to produce computing-based solutions",
+      "courses_assessed": ["COS 301", "COS 431", "COS 460"],
+      "cos431_mapping": ["LO-2", "LO-4"],
+      "assessment_instruments": ["Midterm exams", "Final exam", "All lab assignments"]
+    }
+  ],
+  "curriculum_requirements": {
+    "minimum_cs_credits": 40,
+    "required_topic_areas": [
+      "algorithms and complexity",
+      "data structures",
+      "software design",
+      "operating systems",
+      "computer architecture",
+      "networking",
+      "discrete mathematics",
+      "probability and statistics"
+    ],
+    "design_experience": "SO-2 requires a design experience integrating multiple knowledge areas",
+    "minimum_assessment_points_per_SO": 2,
+    "notes": "Operating systems is explicitly named as a required topic area. Each SO must be assessed in at least 2 courses with documented evidence."
+  },
+  "assessment_requirements": {
+    "direct_measures": ["exams", "projects", "rubric-scored artifacts"],
+    "documentation": "Each course must map assessments to SOs with documentation",
+    "annual_report": "Annual assessment report submitted to department committee",
+    "review_process": "ABET evaluators review syllabi, student work samples, and assessment data during visits (every 6 years)"
+  },
+  "constraints_for_agent": [
+    "MUST NOT recommend changes that eliminate coverage of any SO currently mapped to a course without confirming another course covers that SO",
+    "MUST flag when a proposed change reduces direct assessment points for any SO below the minimum of 2 across the program",
+    "Changes to assessment instruments require updating the department assessment plan, which needs committee approval",
+    "Operating systems is a REQUIRED topic area — cannot be replaced or substantially reduced"
+  ]
+}

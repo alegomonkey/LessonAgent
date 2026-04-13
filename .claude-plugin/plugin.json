@@ -1,0 +1,16 @@
+{
+  "name": "lesson-agent",
+  "version": "0.1.0",
+  "description": "Goal-Aligned Education Agent that helps faculty modernize course materials around students' career goals while respecting accreditation, workload, and foundational knowledge constraints",
+  "author": {
+    "name": "Clark LaChance, Johnny Sylvain, Zach Narcotta"
+  },
+  "keywords": [
+    "education",
+    "syllabus",
+    "accreditation",
+    "career-alignment",
+    "assessment",
+    "curriculum-design"
+  ]
+}

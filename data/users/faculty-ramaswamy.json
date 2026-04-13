@@ -1,0 +1,26 @@
+{
+  "id": "faculty-003",
+  "name": "Dr. Priya Ramaswamy",
+  "role": "faculty",
+  "title": "Assistant Professor",
+  "department": "Department of Chemical and Biomedical Engineering",
+  "institution": "University of Maine",
+  "courses": ["CHE 360 Chemical Engineering Thermodynamics", "CHE 477 Process Control"],
+  "years_teaching": 3,
+  "tech_comfort": "low-moderate",
+  "tech_tools": ["MATLAB", "LMS file upload"],
+  "constraints": {
+    "faculty_hours_available": 6,
+    "budget_cap": 0,
+    "ta_count": 0.5,
+    "ta_hours_per_week": 5,
+    "total_students": 40,
+    "sections": 1,
+    "department_approval_required": true,
+    "additional_duties": "Pre-tenure, research expectations: 2 publications/year. Teaching evaluations critical."
+  },
+  "accreditation_framework": "ABET-EAC",
+  "accreditation_notes": "ABET-accredited Chemical Engineering program with rigid outcome mapping.",
+  "priorities": ["real-world application", "student feedback improvement", "minimal time investment"],
+  "motivation": "Student feedback consistently says 'too theoretical, not enough real-world application.' Wants to add process simulation (Aspen Plus) but unsure how to fit within existing 15-week schedule."
+}

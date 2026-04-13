@@ -1,0 +1,57 @@
+{
+  "role": "Software Engineer, Cloud Infrastructure",
+  "source": "Composite of job postings from AWS (Portland, OR), Cloudflare (Austin, TX), Fastly (remote)",
+  "date_compiled": "2026-03-15",
+  "required_skills": [
+    {
+      "skill": "Operating systems concepts",
+      "details": "Process management, memory management, I/O, networking",
+      "cos431_coverage": "strong",
+      "gap_level": "none"
+    },
+    {
+      "skill": "Systems programming (C/C++)",
+      "details": "Proficiency in C or C++ for systems programming; Rust a plus",
+      "cos431_coverage": "moderate (Java-based labs, some C in xv6)",
+      "gap_level": "low"
+    },
+    {
+      "skill": "Linux kernel internals",
+      "details": "Namespaces, cgroups, seccomp, eBPF",
+      "cos431_coverage": "not covered",
+      "gap_level": "high"
+    },
+    {
+      "skill": "Container technologies",
+      "details": "Docker internals, containerd, OCI runtime spec",
+      "cos431_coverage": "not covered",
+      "gap_level": "high"
+    },
+    {
+      "skill": "Distributed systems",
+      "details": "Consensus, replication, fault tolerance",
+      "cos431_coverage": "not covered (separate course COS 440)",
+      "gap_level": "medium"
+    },
+    {
+      "skill": "Version control and CI/CD",
+      "details": "Git, CI/CD pipelines, infrastructure as code (Terraform)",
+      "cos431_coverage": "informal only",
+      "gap_level": "medium"
+    },
+    {
+      "skill": "Performance profiling",
+      "details": "perf, flamegraphs, strace, dtrace",
+      "cos431_coverage": "not covered",
+      "gap_level": "high"
+    }
+  ],
+  "preferred_skills": [
+    "Open-source contributions to systems projects",
+    "Kubernetes internals or scheduler design",
+    "Hardware-software interface: NUMA, cache coherency, PCIe",
+    "Technical writing: design documents, RFCs, postmortem reports"
+  ],
+  "salary_range": "$130,000 - $200,000",
+  "relevance_to_students": ["Emily Tran (student-001)", "Systems-interested CS majors"]
+}

@@ -1,0 +1,27 @@
+{
+  "id": "faculty-002",
+  "name": "Dr. Marcus Chen",
+  "role": "faculty",
+  "title": "Lecturer",
+  "department": "Department of Communication and Journalism",
+  "institution": "University of Maine",
+  "courses": ["CMJ 103 Fundamentals of Public Communication", "CMJ 266 Media Writing"],
+  "years_teaching": 6,
+  "tech_comfort": "moderate",
+  "tech_tools": ["Brightspace LMS", "PowerPoint", "Zoom"],
+  "constraints": {
+    "faculty_hours_available": 0,
+    "budget_cap": 0,
+    "ta_count": 0,
+    "ta_hours_per_week": 0,
+    "total_students": 120,
+    "sections": 4,
+    "department_approval_required": false,
+    "grading_hours_per_week": 12,
+    "additional_duties": "Lecturer position, no TA support"
+  },
+  "accreditation_framework": "UMaine Gen-Ed",
+  "accreditation_notes": "CMJ 103 satisfies Written and Oral Communication gen-ed requirement. Requires signature assignment scored on standardized rubric.",
+  "priorities": ["career relevance", "grading-neutral changes", "zero-cost solutions"],
+  "motivation": "Gen-ed review committee asking for 'more career relevance' in CMJ 103. STEM majors see the course as a box to check."
+}

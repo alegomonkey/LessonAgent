@@ -1,0 +1,30 @@
+{
+  "id": "student-002",
+  "name": "Marcus Williams",
+  "role": "student",
+  "major": "Electrical Engineering Technology",
+  "minor": null,
+  "year": "senior",
+  "enrolled_courses": ["CHE 477 Process Control", "CMJ 103 Fundamentals of Public Communication"],
+  "completed_courses": ["EET 100", "EET 210", "EET 340", "PHY 111", "PHY 112"],
+  "career_goals": {
+    "primary": "Controls Engineer",
+    "target_companies": ["Verso Corporation", "ReEnergy Holdings", "local Maine manufacturers"],
+    "industry_preference": "pulp-and-paper or renewable energy, wants to stay in Maine",
+    "timeline": "immediately post-graduation"
+  },
+  "background": {
+    "first_generation": false,
+    "work_status": "Non-traditional student, age 26",
+    "family_background": "Grew up in Millinocket, ME. Father worked at former Great Northern Paper mill. Spent 4 years as electrician before returning to school. Has partner and one child.",
+    "scholarships": []
+  },
+  "skills_self_assessment": {
+    "plc_programming": "strong",
+    "electrical_systems": "strong",
+    "matlab": "intermediate",
+    "public_speaking": "weak",
+    "technical_writing": "intermediate"
+  },
+  "perspective": "Every minute in class that does not connect to a real industrial system feels wasted. Values hands-on, practical work above all. Distrustful of 'AI tools' because past employers used automation to eliminate jobs."
+}

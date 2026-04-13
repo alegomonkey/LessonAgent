@@ -1,0 +1,53 @@
+{
+  "role": "Data Scientist",
+  "source": "Composite of postings from IDEXX (Westbrook, ME), Jackson Laboratory (Bar Harbor, ME), WEX (Portland, ME)",
+  "date_compiled": "2026-03-15",
+  "note": "Maine-based employers most likely to hire UMaine graduates",
+  "required_skills": [
+    {
+      "skill": "Statistical methods",
+      "details": "Regression, classification, clustering, time series",
+      "sts434_coverage": "strong",
+      "gap_level": "none"
+    },
+    {
+      "skill": "R and/or Python",
+      "details": "Proficiency in statistical computing",
+      "sts434_coverage": "strong (R only)",
+      "gap_level": "low"
+    },
+    {
+      "skill": "Data wrangling and pipelines",
+      "details": "SQL, pandas, dplyr",
+      "sts434_coverage": "not covered",
+      "gap_level": "high"
+    },
+    {
+      "skill": "Data visualization",
+      "details": "ggplot2, matplotlib, Tableau",
+      "sts434_coverage": "moderate (ggplot2 in assignments)",
+      "gap_level": "low"
+    },
+    {
+      "skill": "Experiment design",
+      "details": "A/B testing, power analysis, causal inference",
+      "sts434_coverage": "not covered",
+      "gap_level": "high"
+    },
+    {
+      "skill": "Communication",
+      "details": "Present findings to non-technical stakeholders",
+      "sts434_coverage": "moderate (project presentation)",
+      "gap_level": "low"
+    }
+  ],
+  "preferred_skills": [
+    "Cloud computing platforms (AWS SageMaker, GCP Vertex AI)",
+    "Deep learning frameworks (PyTorch, TensorFlow)",
+    "Reproducible research (Git, Docker, R Markdown/Quarto)",
+    "Domain expertise in healthcare, biotech, or financial services",
+    "MLOps: model deployment, monitoring, drift detection"
+  ],
+  "salary_range": "$75,000 - $130,000 (Maine market)",
+  "relevance_to_students": ["Aisha Okonkwo (student-003)", "Data science-interested students"]
+}
