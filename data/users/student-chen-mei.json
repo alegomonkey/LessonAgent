@@ -1,0 +1,33 @@
+{
+  "id": "student-005",
+  "name": "Mei Chen",
+  "role": "student",
+  "major": "Nursing (BSN)",
+  "minor": null,
+  "year": "junior",
+  "enrolled_courses": [
+    "CMJ 103 Fundamentals of Public Communication",
+    "NUR 310 Health Assessment"
+  ],
+  "completed_courses": ["BIO 100", "ANP 301", "ANP 302", "NUR 200"],
+  "career_goals": {
+    "primary": "Nurse Practitioner in Rural Healthcare",
+    "target_employers": ["Penobscot Community Health Center", "Northern Light Health"],
+    "industry_preference": "rural primary care, community health",
+    "timeline": "BSN first, then MSN-NP program"
+  },
+  "background": {
+    "first_generation": false,
+    "work_status": "CNA at local nursing home, 20 hrs/week",
+    "family_background": "From Presque Isle, ME. Parents run a small farm. Chose UMaine to stay near family.",
+    "scholarships": ["Maine Nursing Workforce Scholarship"]
+  },
+  "skills_self_assessment": {
+    "patient_communication": "strong",
+    "clinical_procedures": "developing",
+    "public_speaking": "weak",
+    "health_informatics": "beginner",
+    "evidence_based_practice": "developing"
+  },
+  "perspective": "Sees public speaking course as irrelevant to nursing. Does not realize how much of an NP role involves patient education, presenting at care conferences, and advocating to administrators. Would benefit from a health communication framing for speech assignments."
+}

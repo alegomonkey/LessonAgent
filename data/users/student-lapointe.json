@@ -1,0 +1,33 @@
+{
+  "id": "student-006",
+  "name": "Rémi Lapointe",
+  "role": "student",
+  "major": "Chemical Engineering (BS)",
+  "minor": "Sustainability",
+  "year": "sophomore",
+  "enrolled_courses": [
+    "CHE 360 Chemical Engineering Thermodynamics",
+    "MAT 228 Calculus III"
+  ],
+  "completed_courses": ["CHE 200", "PHY 122", "MAT 126", "MAT 127"],
+  "career_goals": {
+    "primary": "Process Engineer in Renewable Energy",
+    "target_employers": ["Versant Power", "ReEnergy Holdings", "Maine Clean Energy"],
+    "industry_preference": "renewable energy, heat pumps, biomass, sustainability",
+    "timeline": "co-op first, then full-time post-graduation"
+  },
+  "background": {
+    "first_generation": true,
+    "work_status": "Not currently working",
+    "family_background": "Franco-American family from Madawaska, ME. Bilingual English/French.",
+    "scholarships": ["Pulp and Paper Foundation Scholarship"]
+  },
+  "skills_self_assessment": {
+    "thermodynamics": "developing",
+    "matlab": "intermediate",
+    "chemistry": "strong",
+    "process_simulation": "none",
+    "data_analysis": "beginner"
+  },
+  "perspective": "Excited about renewable energy but frustrated that CHE 360 feels abstract — all textbook problems, no connection to real systems. Wants to see how thermo applies to heat pumps and biomass energy, which are growing industries in Maine."
+}

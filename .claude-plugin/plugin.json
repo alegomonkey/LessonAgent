@@ -1,16 +1,16 @@
 {
-  "name": "lesson-agent",
-  "version": "0.1.0",
-  "description": "Goal-Aligned Education Agent that helps faculty modernize course materials around students' career goals while respecting accreditation, workload, and foundational knowledge constraints",
+  "name": "assignment-ally",
+  "version": "0.2.0",
+  "description": "AssignmentAlly: helps students build augmented versions of coursework that meet all original requirements plus add career-relevant depth. Produces formal proposal documents for professor approval.",
   "author": {
     "name": "Clark LaChance, Johnny Sylvain, Zach Narcotta"
   },
   "keywords": [
     "education",
-    "syllabus",
-    "accreditation",
+    "student",
+    "assignment",
     "career-alignment",
-    "assessment",
-    "curriculum-design"
+    "proposal",
+    "augmented-assignment"
   ]
 }
