@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AssignmentAlly</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body>
+  <!-- Onboarding screen -->
+  <div id="onboarding" class="screen active">
+    <div class="onboarding-card">
+      <div class="logo">
+        <span class="logo-icon">A</span>
+        <h1>AssignmentAlly</h1>
+      </div>
+      <p class="subtitle">
+        Build career-connected versions of your assignments.
+        Tell us a bit about yourself to get started.
+      </p>
+
+      <form id="onboarding-form">
+        <div class="form-group">
+          <label for="name">Your name</label>
+          <input type="text" id="name" name="name" placeholder="e.g. Emily Tran" required>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="major">Major</label>
+            <input type="text" id="major" name="major" placeholder="e.g. Computer Science" required>
+          </div>
+          <div class="form-group">
+            <label for="year">Year</label>
+            <select id="year" name="year" required>
+              <option value="" disabled selected>Select</option>
+              <option value="Freshman">Freshman</option>
+              <option value="Sophomore">Sophomore</option>
+              <option value="Junior">Junior</option>
+              <option value="Senior">Senior</option>
+              <option value="Graduate">Graduate</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="careerGoals">What do you want to do after graduation?</label>
+          <textarea id="careerGoals" name="careerGoals" rows="2"
+            placeholder="e.g. I want to work as a cloud infrastructure engineer at a company like AWS or Cloudflare"
+            required></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="course">Which course are you working on?</label>
+          <input type="text" id="course" name="course"
+            placeholder="e.g. COS 431 - Operating Systems" required>
+        </div>
+
+        <button type="submit" class="btn-primary">Get Started</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Chat screen -->
+  <div id="chat" class="screen">
+    <header class="chat-header">
+      <div class="header-left">
+        <span class="logo-icon small">A</span>
+        <span class="header-title">AssignmentAlly</span>
+      </div>
+      <button id="new-session-btn" class="btn-ghost" title="Start over">New Session</button>
+    </header>
+
+    <div id="messages" class="messages">
+      <div class="message assistant">
+        <div class="message-content" id="welcome-message"></div>
+      </div>
+    </div>
+
+    <div class="quick-actions" id="quick-actions">
+      <button class="action-chip" data-prompt="Please analyze my assignment. Here's the syllabus for my course — which assignments are available?">
+        Analyze Assignment
+      </button>
+      <button class="action-chip" data-prompt="Now align this assignment with my career goals and suggest augmentation opportunities.">
+        Align Career Goals
+      </button>
+      <button class="action-chip" data-prompt="Build a formal proposal for the augmented assignment that I can present to my professor.">
+        Build Proposal
+      </button>
+    </div>
+
+    <form id="chat-form" class="chat-input-area">
+      <textarea id="chat-input" placeholder="Type your message..." rows="1"></textarea>
+      <button type="submit" class="btn-send" id="send-btn" title="Send">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </form>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
