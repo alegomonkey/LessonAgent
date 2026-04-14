@@ -3,6 +3,9 @@
 let sessionId = null;
 let isStreaming = false;
 let studentName = "";
+let pipelineStep = "ready";
+let pendingFileText = null;
+let pendingFileName = null;
 
 // ── DOM refs ─────────────────────────────────────
 
@@ -16,6 +19,90 @@ const messagesContainer = document.getElementById("messages");
 const welcomeMessage = document.getElementById("welcome-message");
 const newSessionBtn = document.getElementById("new-session-btn");
 const quickActions = document.getElementById("quick-actions");
+const uploadArea = document.getElementById("upload-area");
+const uploadDropzone = document.getElementById("upload-dropzone");
+const fileUpload = document.getElementById("file-upload");
+const btnBrowse = document.getElementById("btn-browse");
+
+// ── Pipeline step helpers ────────────────────────
+
+const STEPS = ["ready", "analyzed", "aligned", "proposed"];
+
+function stepIndex(step) {
+  return STEPS.indexOf(step);
+}
+
+function updateButtonStates() {
+  const analyzeBtn = quickActions.querySelector('[data-step="analyze"]');
+  const alignBtn = quickActions.querySelector('[data-step="align"]');
+  const buildBtn = quickActions.querySelector('[data-step="build"]');
+  const connector1 = document.getElementById("connector-1");
+  const connector2 = document.getElementById("connector-2");
+  const idx = stepIndex(pipelineStep);
+
+  // Reset all
+  [analyzeBtn, alignBtn, buildBtn].forEach((btn) => {
+    btn.classList.remove(
+      "action-chip--completed",
+      "action-chip--current",
+      "action-chip--locked"
+    );
+    btn.disabled = false;
+    btn.title = "";
+  });
+  connector1.classList.remove("step-connector--completed");
+  connector2.classList.remove("step-connector--completed");
+
+  // Analyze button
+  if (idx >= 1) {
+    analyzeBtn.classList.add("action-chip--completed");
+    analyzeBtn.querySelector(".step-indicator").textContent = "\u2713";
+  } else {
+    analyzeBtn.classList.add("action-chip--current");
+    analyzeBtn.querySelector(".step-indicator").textContent = "1";
+  }
+
+  // Connector 1
+  if (idx >= 1) {
+    connector1.classList.add("step-connector--completed");
+  }
+
+  // Align button
+  if (idx >= 2) {
+    alignBtn.classList.add("action-chip--completed");
+    alignBtn.querySelector(".step-indicator").textContent = "\u2713";
+  } else if (idx >= 1) {
+    alignBtn.classList.add("action-chip--current");
+    alignBtn.querySelector(".step-indicator").textContent = "2";
+  } else {
+    alignBtn.classList.add("action-chip--locked");
+    alignBtn.disabled = true;
+    alignBtn.title = "Complete assignment analysis first";
+    alignBtn.querySelector(".step-indicator").textContent = "2";
+  }
+
+  // Connector 2
+  if (idx >= 2) {
+    connector2.classList.add("step-connector--completed");
+  }
+
+  // Build button
+  if (idx >= 3) {
+    buildBtn.classList.add("action-chip--completed");
+    buildBtn.querySelector(".step-indicator").textContent = "\u2713";
+  } else if (idx >= 2) {
+    buildBtn.classList.add("action-chip--current");
+    buildBtn.querySelector(".step-indicator").textContent = "3";
+  } else {
+    buildBtn.classList.add("action-chip--locked");
+    buildBtn.disabled = true;
+    buildBtn.title =
+      idx < 1
+        ? "Complete analysis and alignment first"
+        : "Complete career alignment first";
+    buildBtn.querySelector(".step-indicator").textContent = "3";
+  }
+}
 
 // ── Onboarding ───────────────────────────────────
 
@@ -42,23 +129,24 @@ onboardingForm.addEventListener("submit", async (e) => {
       throw new Error(err.error || "Failed to create session.");
     }
 
-    const { sessionId: id } = await res.json();
-    sessionId = id;
+    const result = await res.json();
+    sessionId = result.sessionId;
+    pipelineStep = result.pipelineStep || "ready";
 
     // Set welcome message
     welcomeMessage.innerHTML = renderMarkdown(
       `Hi ${studentName}! I'm **AssignmentAlly**. I help you build augmented, career-connected versions of your assignments and draft formal proposals you can present to your professor.\n\n` +
-      `Here's how we'll work together:\n\n` +
-      `1. **Analyze** your assignment to understand what it requires\n` +
-      `2. **Align** it with your career goals to find augmentation opportunities\n` +
-      `3. **Build** a formal proposal with rubric compliance proof\n\n` +
-      `You can use the quick actions below, or just tell me what you'd like to do. ` +
-      `Start by sharing your assignment or telling me which one you'd like to work on.`
+        `Here's how we'll work together:\n\n` +
+        `1. **Analyze** your assignment to understand what it requires\n` +
+        `2. **Align** it with your career goals to find augmentation opportunities\n` +
+        `3. **Build** a formal proposal with rubric compliance proof\n\n` +
+        `Start by clicking **Analyze Assignment** above to upload your syllabus or assignment, or just describe it in the chat box.`
     );
 
     // Switch to chat
     onboardingScreen.classList.remove("active");
     chatScreen.classList.add("active");
+    updateButtonStates();
     chatInput.focus();
   } catch (err) {
     alert(err.message);
@@ -90,9 +178,18 @@ chatInput.addEventListener("input", () => {
 // Quick action chips
 quickActions.addEventListener("click", (e) => {
   const chip = e.target.closest(".action-chip");
-  if (!chip || isStreaming) return;
-  const prompt = chip.dataset.prompt;
-  chatInput.value = prompt;
+  if (!chip || isStreaming || chip.disabled) return;
+
+  const step = chip.dataset.step;
+
+  if (step === "analyze") {
+    // Toggle upload area visibility
+    toggleUploadArea();
+    return;
+  }
+
+  // For align and build, send prompt directly
+  chatInput.value = chip.dataset.prompt;
   sendMessage();
 });
 
@@ -101,6 +198,10 @@ newSessionBtn.addEventListener("click", () => {
   sessionId = null;
   isStreaming = false;
   studentName = "";
+  pipelineStep = "ready";
+  pendingFileText = null;
+  pendingFileName = null;
+  hideUploadArea();
   onboardingForm.reset();
   messagesContainer.innerHTML =
     '<div class="message assistant"><div class="message-content" id="welcome-message"></div></div>';
@@ -109,14 +210,146 @@ newSessionBtn.addEventListener("click", () => {
   const btn = onboardingForm.querySelector("button[type=submit]");
   btn.disabled = false;
   btn.textContent = "Get Started";
+  updateButtonStates();
 });
+
+// ── Upload area ──────────────────────────────────
+
+function toggleUploadArea() {
+  if (uploadArea.classList.contains("upload-area--visible")) {
+    hideUploadArea();
+  } else {
+    showUploadArea();
+  }
+}
+
+function showUploadArea() {
+  uploadArea.classList.add("upload-area--visible");
+}
+
+function hideUploadArea() {
+  uploadArea.classList.remove("upload-area--visible");
+}
+
+btnBrowse.addEventListener("click", () => {
+  fileUpload.click();
+});
+
+fileUpload.addEventListener("change", async () => {
+  const file = fileUpload.files[0];
+  if (!file) return;
+
+  // Show uploading state
+  const originalTitle = uploadDropzone.querySelector(".upload-title");
+  const originalText = originalTitle.textContent;
+  originalTitle.textContent = `Uploading ${file.name}...`;
+  btnBrowse.disabled = true;
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.error || "Upload failed.");
+    }
+
+    // Store file text and send the analyze prompt
+    pendingFileText = result.text;
+    pendingFileName = result.fileName;
+    hideUploadArea();
+
+    const analyzeBtn = quickActions.querySelector('[data-step="analyze"]');
+    chatInput.value = analyzeBtn.dataset.prompt;
+    sendMessage();
+  } catch (err) {
+    alert(err.message);
+    originalTitle.textContent = originalText;
+  }
+
+  btnBrowse.disabled = false;
+  fileUpload.value = "";
+});
+
+// Drag and drop
+uploadDropzone.addEventListener("dragover", (e) => {
+  e.preventDefault();
+  uploadDropzone.classList.add("drag-over");
+});
+
+uploadDropzone.addEventListener("dragleave", () => {
+  uploadDropzone.classList.remove("drag-over");
+});
+
+uploadDropzone.addEventListener("drop", async (e) => {
+  e.preventDefault();
+  uploadDropzone.classList.remove("drag-over");
+
+  const file = e.dataTransfer.files[0];
+  if (!file) return;
+
+  const ext = file.name.split(".").pop().toLowerCase();
+  if (!["pdf", "txt", "md"].includes(ext)) {
+    alert(
+      `Unsupported file type ".${ext}". Please use PDF, TXT, or MD files.`
+    );
+    return;
+  }
+
+  // Upload the dropped file
+  const originalTitle = uploadDropzone.querySelector(".upload-title");
+  const originalText = originalTitle.textContent;
+  originalTitle.textContent = `Uploading ${file.name}...`;
+
+  try {
+    const formData = new FormData();
+    formData.append("file", file);
+
+    const res = await fetch("/api/upload", {
+      method: "POST",
+      body: formData,
+    });
+
+    const result = await res.json();
+
+    if (!res.ok) {
+      throw new Error(result.error || "Upload failed.");
+    }
+
+    pendingFileText = result.text;
+    pendingFileName = result.fileName;
+    hideUploadArea();
+
+    const analyzeBtn = quickActions.querySelector('[data-step="analyze"]');
+    chatInput.value = analyzeBtn.dataset.prompt;
+    sendMessage();
+  } catch (err) {
+    alert(err.message);
+    originalTitle.textContent = originalText;
+  }
+});
+
+// ── Send message ─────────────────────────────────
 
 async function sendMessage() {
   const text = chatInput.value.trim();
   if (!text || isStreaming || !sessionId) return;
 
-  // Add user message
-  appendMessage("user", text);
+  // Capture and clear pending file info
+  const fileText = pendingFileText;
+  const fileName = pendingFileName;
+  pendingFileText = null;
+  pendingFileName = null;
+
+  // Add user message — include file name if uploaded
+  const displayText = fileName ? `[Uploaded: ${fileName}]\n${text}` : text;
+  appendMessage("user", displayText);
   chatInput.value = "";
   chatInput.style.height = "auto";
 
@@ -125,10 +358,15 @@ async function sendMessage() {
   setStreaming(true);
 
   try {
+    const body = { sessionId, message: text };
+    if (fileText) {
+      body.fileText = fileText;
+    }
+
     const res = await fetch("/api/chat", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ sessionId, message: text }),
+      body: JSON.stringify(body),
     });
 
     if (!res.ok) {
@@ -166,6 +404,13 @@ async function sendMessage() {
             fullText += event.content;
             contentEl.innerHTML = renderMarkdown(fullText);
             scrollToBottom();
+          } else if (event.type === "done") {
+            // Update pipeline state from server
+            if (event.pipelineStep) {
+              pipelineStep = event.pipelineStep;
+              updateButtonStates();
+            }
+            hideUploadArea();
           } else if (event.type === "error") {
             contentEl.textContent = event.content;
             assistantEl.classList.add("error");
@@ -181,7 +426,10 @@ async function sendMessage() {
     }
   } catch (err) {
     typingEl.remove();
-    appendMessage("error", err.message || "Something went wrong. Please try again.");
+    appendMessage(
+      "error",
+      err.message || "Something went wrong. Please try again."
+    );
   }
 
   setStreaming(false);
@@ -228,7 +476,16 @@ function setStreaming(val) {
   isStreaming = val;
   sendBtn.disabled = val;
   chatInput.disabled = val;
-  quickActions.querySelectorAll(".action-chip").forEach((c) => (c.disabled = val));
+
+  // During streaming, disable all chips. On finish, restore pipeline-aware states.
+  if (val) {
+    quickActions
+      .querySelectorAll(".action-chip")
+      .forEach((c) => (c.disabled = true));
+  } else {
+    updateButtonStates();
+  }
+
   if (!val) chatInput.focus();
 }
 

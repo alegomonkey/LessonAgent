@@ -78,15 +78,35 @@
     </div>
 
     <div class="quick-actions" id="quick-actions">
-      <button class="action-chip" data-prompt="Please analyze my assignment. Here's the syllabus for my course — which assignments are available?">
-        Analyze Assignment
+      <button class="action-chip action-chip--current" data-step="analyze"
+        data-prompt="Please analyze my assignment. Here&#x2019;s the syllabus for my course &#x2014; which assignments are available?">
+        <span class="step-indicator">1</span>
+        <span class="step-label">Analyze Assignment</span>
       </button>
-      <button class="action-chip" data-prompt="Now align this assignment with my career goals and suggest augmentation opportunities.">
-        Align Career Goals
+      <div class="step-connector" id="connector-1"></div>
+      <button class="action-chip action-chip--locked" data-step="align" disabled
+        title="Complete assignment analysis first"
+        data-prompt="Now align this assignment with my career goals and suggest augmentation opportunities.">
+        <span class="step-indicator">2</span>
+        <span class="step-label">Align Career Goals</span>
       </button>
-      <button class="action-chip" data-prompt="Build a formal proposal for the augmented assignment that I can present to my professor.">
-        Build Proposal
+      <div class="step-connector" id="connector-2"></div>
+      <button class="action-chip action-chip--locked" data-step="build" disabled
+        title="Complete analysis and alignment first"
+        data-prompt="Build a formal proposal for the augmented assignment that I can present to my professor.">
+        <span class="step-indicator">3</span>
+        <span class="step-label">Build Proposal</span>
       </button>
+    </div>
+
+    <div class="upload-area" id="upload-area">
+      <div class="upload-dropzone" id="upload-dropzone">
+        <div class="upload-icon">&#x1F4C4;</div>
+        <p class="upload-title">Drop your syllabus or assignment here</p>
+        <button type="button" class="btn-browse" id="btn-browse">Browse files</button>
+        <p class="upload-hint">Accepts PDF, TXT, MD &mdash; or just describe your assignment in the chat box below</p>
+      </div>
+      <input type="file" id="file-upload" accept=".pdf,.md,.txt" style="display:none">
     </div>
 
     <form id="chat-form" class="chat-input-area">

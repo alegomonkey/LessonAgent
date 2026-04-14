@@ -6,10 +6,13 @@ export interface StudentProfile {
   course: string;
 }
 
+export type PipelineStep = "ready" | "analyzed" | "aligned" | "proposed";
+
 export interface ChatSession {
   id: string;
   student: StudentProfile;
   sdkSessionId?: string;
+  pipelineStep: PipelineStep;
   createdAt: number;
 }
 
