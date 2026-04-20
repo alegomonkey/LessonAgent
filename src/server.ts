@@ -52,6 +52,56 @@ const NAME_TO_PHASE: Record<string, "analyze" | "align" | "build"> = {
   "build-proposal": "build",
 };
 
+// Human-friendly status label for the loading indicator, derived from the
+// current tool_use block. Returned string is shown verbatim next to the
+// spinner so the user can see what the agent is actually doing.
+function describeToolUse(block: {
+  name?: string;
+  input?: Record<string, unknown>;
+}): string | undefined {
+  const name = block.name;
+  const input = block.input ?? {};
+
+  if (name === "Skill") {
+    const skill = input.skill as string | undefined;
+    if (skill === "assignment-analysis") return "Analyzing assignment...";
+    if (skill === "career-alignment") return "Aligning with career goals...";
+    if (skill === "proposal-builder") return "Building proposal...";
+    // Internal skills — do not announce to the user.
+    if (skill === "pipeline-gate") return undefined;
+    return skill ? `Running ${skill}...` : "Running skill...";
+  }
+
+  if (name === "Agent" || name === "Task") {
+    const agent = (input.subagent_type ?? input.agent_type) as
+      | string
+      | undefined;
+    if (agent === "assignment-analyzer") return "Analyzing assignment...";
+    if (agent === "career-matcher") return "Matching career opportunities...";
+    if (agent === "proposal-writer") return "Writing proposal...";
+    return agent ? `Delegating to ${agent}...` : "Delegating work...";
+  }
+
+  if (name === "Read") {
+    const p = (input.file_path ?? "") as string;
+    if (/\/skills\/.*\/SKILL\.md$/i.test(p)) return "Loading skill instructions...";
+    if (/\/skills\//i.test(p)) return "Reading skill reference...";
+    if (/\/syllabi\//i.test(p)) return "Reading syllabus...";
+    if (/\/industry\//i.test(p)) return "Reading industry data...";
+    if (/\/users\//i.test(p)) return "Reading student profile...";
+    if (/\/examples\//i.test(p)) return "Reading example...";
+    return "Reading document...";
+  }
+
+  if (name === "Grep") return "Searching content...";
+  if (name === "Glob") return "Finding files...";
+  if (name === "AskUserQuestion") return "Preparing a question...";
+  if (name === "TodoWrite") return "Planning next steps...";
+  if (name === "Write") return "Saving output...";
+
+  return undefined;
+}
+
 function detectPhaseFromBlock(block: {
   type: string;
   name?: string;
@@ -189,6 +239,14 @@ app.post("/api/chat", async (req: Request, res: Response) => {
     return;
   }
 
+  // pipeline-gate is an internal, agent-only skill — reject direct user calls.
+  if (/^\s*\/\s*pipeline-gate\b/i.test(message)) {
+    res
+      .status(400)
+      .json({ error: "pipeline-gate is an internal skill and cannot be invoked directly." });
+    return;
+  }
+
   // ── Pipeline enforcement ──────────────────────────────────────────
   // Only enforce on known button prompts; free-text always passes through
   const stepForPrompt = identifyPipelineStep(message);
@@ -270,6 +328,15 @@ app.post("/api/chat", async (req: Request, res: Response) => {
                 `data: ${JSON.stringify({ type: "text", content: block.text })}\n\n`
               );
             } else if (block.type === "tool_use") {
+              const statusMsg = describeToolUse(block);
+              if (statusMsg) {
+                res.write(
+                  `data: ${JSON.stringify({
+                    type: "status",
+                    content: statusMsg,
+                  })}\n\n`
+                );
+              }
               const phase = detectPhaseFromBlock(block);
               if (phase) {
                 // Starting a strictly-later phase implies the previous phase
@@ -307,10 +374,17 @@ app.post("/api/chat", async (req: Request, res: Response) => {
           session.goalProfile = profileJson;
         }
 
-        // Mark the active phase complete only if the agent isn't waiting on
-        // the user for more info (trailing question). Otherwise leave
-        // pipelineStep where it was so the chip stays on the in-progress step.
-        if (phaseInTurn && !endsWithQuestion(accumulatedText)) {
+        // Prefer the pipeline-gate skill's explicit verdict over the
+        // trailing-question heuristic. The gate is the agent's own judgment
+        // about whether its phase work is actually done for this turn.
+        const gate = extractPipelineGate(accumulatedText);
+        if (gate) {
+          if (gate.canAdvance) {
+            advancePipeline(session, gate.phase);
+          }
+          // canAdvance === false — explicitly leave pipelineStep alone.
+        } else if (phaseInTurn && !endsWithQuestion(accumulatedText)) {
+          // Fallback only when the agent forgot to call pipeline-gate.
           advancePipeline(session, phaseInTurn);
         }
 
@@ -385,16 +459,57 @@ const PHASE_ORDER: Record<"analyze" | "align" | "build", number> = {
 // Heuristic: the agent is waiting on the user when its final prose ends with
 // a question. In that case the phase it started isn't actually finished — the
 // user still needs to answer before the step should be marked complete.
+// Used only as a fallback when the pipeline-gate skill wasn't invoked.
 function endsWithQuestion(text: string): boolean {
   const cleaned = text
-    // Strip the goal-profile JSON block so the real prose is what we test.
+    // Strip internal markers so the real prose is what we test.
     .replace(
       /<!-- GOAL_PROFILE_JSON -->[\s\S]*?<!-- \/GOAL_PROFILE_JSON -->/g,
       ""
     )
+    .replace(/<!-- PIPELINE_GATE[\s\S]*?-->/g, "")
     // Strip trailing whitespace and markdown punctuation (e.g. "?**", "?*_").
     .replace(/[\s*_`~]+$/, "");
   return cleaned.endsWith("?");
+}
+
+// The pipeline-gate skill emits a single-line JSON payload inside an HTML
+// comment, e.g.:
+//   <!-- PIPELINE_GATE {"phase":"analyze","canAdvance":true,...} -->
+// (leading/trailing whitespace and newlines inside the comment are allowed).
+// Multiple gates in one turn are tolerated — we use the last one.
+const PIPELINE_GATE_RE = /<!-- PIPELINE_GATE\s*([\s\S]*?)\s*-->/g;
+
+function extractPipelineGate(
+  text: string
+):
+  | { phase: "analyze" | "align" | "build"; canAdvance: boolean; reason?: string }
+  | null {
+  const matches = [...text.matchAll(PIPELINE_GATE_RE)];
+  if (matches.length === 0) return null;
+  const last = matches[matches.length - 1];
+  try {
+    const parsed = JSON.parse(last[1]) as {
+      phase?: unknown;
+      canAdvance?: unknown;
+      reason?: unknown;
+    };
+    if (
+      parsed.phase !== "analyze" &&
+      parsed.phase !== "align" &&
+      parsed.phase !== "build"
+    ) {
+      return null;
+    }
+    if (typeof parsed.canAdvance !== "boolean") return null;
+    return {
+      phase: parsed.phase,
+      canAdvance: parsed.canAdvance,
+      reason: typeof parsed.reason === "string" ? parsed.reason : undefined,
+    };
+  } catch {
+    return null;
+  }
 }
 
 // ── Goal profile extraction ─────────────────────────────────────────
