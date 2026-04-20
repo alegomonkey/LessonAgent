@@ -18,7 +18,6 @@ const chatForm = document.getElementById("chat-form");
 const chatInput = document.getElementById("chat-input");
 const sendBtn = document.getElementById("send-btn");
 const messagesContainer = document.getElementById("messages");
-const welcomeMessage = document.getElementById("welcome-message");
 const newSessionBtn = document.getElementById("new-session-btn");
 const quickActions = document.getElementById("quick-actions");
 const uploadArea = document.getElementById("upload-area");
@@ -178,8 +177,11 @@ onboardingForm.addEventListener("submit", async (e) => {
     sessionId = result.sessionId;
     pipelineStep = result.pipelineStep || "ready";
 
-    // Set welcome message
-    welcomeMessage.innerHTML = renderMarkdown(
+    // Set welcome message — re-query by ID because the "New session" handler
+    // replaces #welcome-message via messagesContainer.innerHTML, leaving the
+    // const captured at load pointing at a detached node.
+    const welcomeEl = document.getElementById("welcome-message");
+    welcomeEl.innerHTML = renderMarkdown(
       `Hi ${studentName}! I'm **AssignmentAlly**. I help you build augmented, career-connected versions of your assignments and draft formal proposals you can present to your professor.\n\n` +
         `Here's how we'll work together:\n\n` +
         `1. **Analyze** your assignment to understand what it requires\n` +
