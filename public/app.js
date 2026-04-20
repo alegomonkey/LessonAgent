@@ -78,6 +78,8 @@ function updateButtonStates() {
   // Analyze button
   if (idx >= 1) {
     analyzeBtn.classList.add("action-chip--completed");
+    analyzeBtn.disabled = true;
+    analyzeBtn.title = "Assignment analysis complete";
     analyzeBtn.querySelector(".step-indicator").textContent = "\u2713";
   } else {
     analyzeBtn.classList.add("action-chip--current");
@@ -92,6 +94,8 @@ function updateButtonStates() {
   // Align button
   if (idx >= 2) {
     alignBtn.classList.add("action-chip--completed");
+    alignBtn.disabled = true;
+    alignBtn.title = "Career alignment complete";
     alignBtn.querySelector(".step-indicator").textContent = "\u2713";
   } else if (idx >= 1) {
     alignBtn.classList.add("action-chip--current");
@@ -111,6 +115,8 @@ function updateButtonStates() {
   // Build button
   if (idx >= 3) {
     buildBtn.classList.add("action-chip--completed");
+    buildBtn.disabled = true;
+    buildBtn.title = "Proposal built";
     buildBtn.querySelector(".step-indicator").textContent = "\u2713";
   } else if (idx >= 2) {
     buildBtn.classList.add("action-chip--current");
