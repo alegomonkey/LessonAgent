@@ -250,7 +250,37 @@ quickActions.addEventListener("click", (e) => {
 });
 
 // New session
+function showToast(message, variant = "default", durationMs = 3500) {
+  const container = document.getElementById("toast-container");
+  if (!container) return;
+  const toast = document.createElement("div");
+  toast.className =
+    "toast" + (variant !== "default" ? ` toast--${variant}` : "");
+  toast.setAttribute("role", variant === "error" ? "alert" : "status");
+  toast.textContent = message;
+  container.appendChild(toast);
+  setTimeout(() => {
+    toast.classList.add("toast--dismiss");
+    toast.addEventListener("animationend", () => toast.remove(), { once: true });
+  }, durationMs);
+}
+
 newSessionBtn.addEventListener("click", () => {
+  if (isStreaming) {
+    showToast(
+      "Please wait — the agent is still responding. You can start a new session once it finishes.",
+      "warn"
+    );
+    return;
+  }
+  if (
+    sessionId &&
+    !confirm(
+      "Start a new session? Your current conversation will be cleared."
+    )
+  ) {
+    return;
+  }
   sessionId = null;
   isStreaming = false;
   studentName = "";
@@ -448,7 +478,12 @@ async function sendMessage() {
     const textEl = contentEl.querySelector(".streaming-text");
     const indicatorEl = contentEl.querySelector(".loading-indicator");
     let fullText = "";
-    let labelRemoved = false;
+    let labelSwitchedToWriting = false;
+
+    const setLoadingLabel = (msg) => {
+      const labelEl = indicatorEl.querySelector(".loading-text");
+      if (labelEl) labelEl.textContent = msg;
+    };
 
     // Read SSE stream
     const reader = res.body.getReader();
@@ -471,14 +506,16 @@ async function sendMessage() {
         try {
           const event = JSON.parse(jsonStr);
           if (event.type === "text") {
-            if (!labelRemoved) {
-              const labelEl = indicatorEl.querySelector(".loading-text");
-              if (labelEl) labelEl.remove();
-              labelRemoved = true;
+            if (!labelSwitchedToWriting) {
+              setLoadingLabel("Generating response...");
+              labelSwitchedToWriting = true;
             }
             fullText += event.content;
-            textEl.innerHTML = renderMarkdown(fullText);
+            textEl.innerHTML = renderMarkdown(stripInternalMarkers(fullText));
             scrollToBottom();
+          } else if (event.type === "status") {
+            setLoadingLabel(event.content);
+            labelSwitchedToWriting = false;
           } else if (event.type === "phase") {
             activePhase = event.activePhase || null;
             if (event.pipelineStep) pipelineStep = event.pipelineStep;
@@ -561,7 +598,7 @@ function appendTypingIndicator() {
     '<div class="streaming-text"></div>' +
     '<div class="loading-indicator">' +
       '<div class="loading-spinner" aria-hidden="true"></div>' +
-      '<span class="loading-text">Working on your request</span>' +
+      '<span class="loading-text">Tokenizing input...</span>' +
     '</div>';
 
   wrapper.appendChild(content);
@@ -679,8 +716,19 @@ function escapeHtml(text) {
 const PROFILE_MARKER_RE =
   /<!-- GOAL_PROFILE_JSON -->\s*```(?:json)?\s*[\s\S]*?\s*```\s*<!-- \/GOAL_PROFILE_JSON -->/g;
 
+// The pipeline-gate skill emits an HTML-comment-wrapped JSON payload. Strip
+// it on every render so the student never sees the internal state marker.
+const PIPELINE_GATE_MARKER_RE = /<!-- PIPELINE_GATE[\s\S]*?-->/g;
+
+function stripInternalMarkers(text) {
+  return text
+    .replace(PROFILE_MARKER_RE, "")
+    .replace(PIPELINE_GATE_MARKER_RE, "")
+    .trim();
+}
+
 function stripProfileMarker(text) {
-  return text.replace(PROFILE_MARKER_RE, "").trim();
+  return stripInternalMarkers(text);
 }
 
 // Download button toggle
