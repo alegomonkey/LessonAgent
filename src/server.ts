@@ -245,6 +245,10 @@ app.post("/api/chat", async (req: Request, res: Response) => {
 
     const conversation = query({ prompt, options });
     let accumulatedText = "";
+    // Tracks the latest phase the agent touched in this turn. We only mark
+    // that phase complete if (a) the agent later moves to a strictly-later
+    // phase or (b) the turn ends without a pending question to the user.
+    let phaseInTurn: "analyze" | "align" | "build" | undefined;
 
     for await (const msg of conversation) {
       if (msg.type === "assistant") {
@@ -268,7 +272,15 @@ app.post("/api/chat", async (req: Request, res: Response) => {
             } else if (block.type === "tool_use") {
               const phase = detectPhaseFromBlock(block);
               if (phase) {
-                advancePipeline(session, phase);
+                // Starting a strictly-later phase implies the previous phase
+                // is complete — advance pipelineStep for it now.
+                if (
+                  phaseInTurn &&
+                  PHASE_ORDER[phase] > PHASE_ORDER[phaseInTurn]
+                ) {
+                  advancePipeline(session, phaseInTurn);
+                }
+                phaseInTurn = phase;
                 res.write(
                   `data: ${JSON.stringify({
                     type: "phase",
@@ -293,6 +305,13 @@ app.post("/api/chat", async (req: Request, res: Response) => {
         const profileJson = extractGoalProfile(accumulatedText);
         if (profileJson) {
           session.goalProfile = profileJson;
+        }
+
+        // Mark the active phase complete only if the agent isn't waiting on
+        // the user for more info (trailing question). Otherwise leave
+        // pipelineStep where it was so the chip stays on the in-progress step.
+        if (phaseInTurn && !endsWithQuestion(accumulatedText)) {
+          advancePipeline(session, phaseInTurn);
         }
 
         const success = result.subtype === "success";
@@ -355,6 +374,27 @@ function advancePipeline(
   if (stepIndex(target) > stepIndex(session.pipelineStep)) {
     session.pipelineStep = target;
   }
+}
+
+const PHASE_ORDER: Record<"analyze" | "align" | "build", number> = {
+  analyze: 1,
+  align: 2,
+  build: 3,
+};
+
+// Heuristic: the agent is waiting on the user when its final prose ends with
+// a question. In that case the phase it started isn't actually finished — the
+// user still needs to answer before the step should be marked complete.
+function endsWithQuestion(text: string): boolean {
+  const cleaned = text
+    // Strip the goal-profile JSON block so the real prose is what we test.
+    .replace(
+      /<!-- GOAL_PROFILE_JSON -->[\s\S]*?<!-- \/GOAL_PROFILE_JSON -->/g,
+      ""
+    )
+    // Strip trailing whitespace and markdown punctuation (e.g. "?**", "?*_").
+    .replace(/[\s*_`~]+$/, "");
+  return cleaned.endsWith("?");
 }
 
 // ── Goal profile extraction ─────────────────────────────────────────
