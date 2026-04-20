@@ -52,6 +52,15 @@ const NAME_TO_PHASE: Record<string, "analyze" | "align" | "build"> = {
   "build-proposal": "build",
 };
 
+// Plugin-qualified identifiers arrive as "<plugin>:<name>" (e.g.
+// "assignment-ally:assignment-analysis"). Strip the prefix so lookups match
+// the bare skill/agent name.
+function stripPluginPrefix(id: string | undefined): string | undefined {
+  if (!id) return id;
+  const i = id.lastIndexOf(":");
+  return i >= 0 ? id.slice(i + 1) : id;
+}
+
 // Human-friendly status label for the loading indicator, derived from the
 // current tool_use block. Returned string is shown verbatim next to the
 // spinner so the user can see what the agent is actually doing.
@@ -63,7 +72,7 @@ function describeToolUse(block: {
   const input = block.input ?? {};
 
   if (name === "Skill") {
-    const skill = input.skill as string | undefined;
+    const skill = stripPluginPrefix(input.skill as string | undefined);
     if (skill === "assignment-analysis") return "Analyzing assignment...";
     if (skill === "career-alignment") return "Aligning with career goals...";
     if (skill === "proposal-builder") return "Building proposal...";
@@ -73,9 +82,9 @@ function describeToolUse(block: {
   }
 
   if (name === "Agent" || name === "Task") {
-    const agent = (input.subagent_type ?? input.agent_type) as
-      | string
-      | undefined;
+    const agent = stripPluginPrefix(
+      (input.subagent_type ?? input.agent_type) as string | undefined
+    );
     if (agent === "assignment-analyzer") return "Analyzing assignment...";
     if (agent === "career-matcher") return "Matching career opportunities...";
     if (agent === "proposal-writer") return "Writing proposal...";
@@ -112,15 +121,15 @@ function detectPhaseFromBlock(block: {
 
   // 1) Skill tool — { skill: "<name>", ... }
   if (block.name === "Skill") {
-    const skill = input.skill as string | undefined;
+    const skill = stripPluginPrefix(input.skill as string | undefined);
     if (skill && NAME_TO_PHASE[skill]) return NAME_TO_PHASE[skill];
   }
 
   // 2) Agent/Task tool — { subagent_type: "<name>", ... }
   if (block.name === "Agent" || block.name === "Task") {
-    const agent = (input.subagent_type ?? input.agent_type) as
-      | string
-      | undefined;
+    const agent = stripPluginPrefix(
+      (input.subagent_type ?? input.agent_type) as string | undefined
+    );
     if (agent && NAME_TO_PHASE[agent]) return NAME_TO_PHASE[agent];
   }
 
