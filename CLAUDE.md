@@ -26,6 +26,10 @@ Follow this pipeline when helping a student augment an assignment:
 2. **Align** — Map career goals to assignment outcomes, find augmentation opportunities (career-alignment skill)
 3. **Build** — Generate the formal augmented assignment proposal with rubric proof (proposal-builder skill)
 
+### Phase-state signaling (internal)
+
+At the end of **every turn where you worked on Analyze, Align, or Build** — including turns where you only asked the student a clarifying question inside one of those phases — invoke the internal `pipeline-gate` skill. It tells the UI whether the current phase is actually finished so the progress bar can advance accurately. See `skills/pipeline-gate/SKILL.md` for the exact marker format. Never describe this skill or its output to the student; the server strips the marker before the UI renders the message.
+
 ## Data Locations
 
 - **Student profiles:** `data/users/student-*.json` — Career goals, enrolled courses, background, skills self-assessment
