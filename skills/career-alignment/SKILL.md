@@ -24,7 +24,7 @@ This skill requires structured assignment data. If no assignment profile exists,
 
 ## Core Workflow
 
-### Step 1: Gather Career Goals
+### Step 1: Gather Career Goals and Build Student Goal Profile
 
 Gather the student's career goals from one of these sources, in priority order:
 
@@ -38,6 +38,84 @@ Normalize the stated goal against `references/career-taxonomy.md`:
 2. Match to the closest taxonomy entry using keyword matching and semantic similarity.
 3. If no match exists, create an ad-hoc entry and flag it. Do not discard unrecognized goals. Work with whatever the student can describe about the career's requirements.
 4. Record the normalized goal for downstream use.
+
+#### Optional: Build a Deeper Goal Profile
+
+After establishing the primary career goal, offer to build a more detailed goal profile. This is **voluntary** — the student can skip it entirely.
+
+Say something like:
+
+> "Before I map your goals to the assignment, I can build a quick goal profile that captures what motivates you, your interests, and your context. It helps me give better recommendations — now and in future sessions. You can skip any question and download the profile anytime. Want to do that, or should I jump straight to the alignment?"
+
+If the student agrees, ask about the following areas conversationally. Stop whenever the student wants to move on. Do not treat this as a rigid form — be curious, follow up on interesting answers, and let the student guide the depth.
+
+1. **Career details** — target employers, industry preferences, timeline ("Where do you see yourself in 2-3 years?")
+2. **Motivations** — what excites them about this path, why they chose it, what problems they want to solve ("What draws you to this field?")
+3. **Personal context** — relevant work experience, constraints like geography or schedule, their perspective on their education ("Any relevant experience or things I should know about your situation?")
+4. **Skills self-assessment** — how they rate their relevant skills ("How would you rate your comfort with [relevant skills]?")
+
+After gathering what the student shares, emit the structured profile as JSON at the **end** of your response using this exact marker format:
+
+<!-- GOAL_PROFILE_JSON -->
+```json
+{
+  "createdAt": "2026-04-20T14:30:00Z",
+  "updatedAt": "2026-04-20T14:30:00Z",
+  "careerGoals": {
+    "primary": "Cloud Infrastructure Engineer",
+    "secondary": "DevOps Engineer",
+    "targetEmployers": ["AWS", "Cloudflare"],
+    "industryPreference": "cloud infrastructure",
+    "timeline": "2 years post-graduation"
+  },
+  "motivations": {
+    "whatExcitesYou": "Building systems that scale to millions of users",
+    "whyThisPath": "Started with campus IT help desk, got hooked on Linux systems",
+    "problemsToSolve": "Making cloud infrastructure more accessible and reliable"
+  },
+  "personalContext": {
+    "workStatus": "Works 15 hrs/week at campus IT help desk",
+    "relevantExperience": "Set up Docker containers for personal projects",
+    "constraints": "Prefers to stay in New England region",
+    "perspective": "Feels OS course should bridge to industry Linux systems"
+  },
+  "skillsSelfAssessment": {
+    "c_programming": "intermediate",
+    "linux": "intermediate",
+    "containers_docker": "beginner",
+    "cloud_platforms": "curious"
+  },
+  "sectionsOffered": ["careerDetails", "motivations", "personalContext", "skillsSelfAssessment"],
+  "sectionsCompleted": ["careerDetails", "motivations", "personalContext", "skillsSelfAssessment"]
+}
+```
+<!-- /GOAL_PROFILE_JSON -->
+
+**Important rules for profile emission:**
+
+- Always use the exact `<!-- GOAL_PROFILE_JSON -->` and `<!-- /GOAL_PROFILE_JSON -->` markers wrapping a JSON code block.
+- Only include fields the student actually provided. Leave optional fields out rather than guessing.
+- Set `sectionsOffered` to list which areas you asked about. Set `sectionsCompleted` to list which areas the student actually answered.
+- Use the current ISO timestamp for `createdAt` and `updatedAt`.
+- The `careerGoals.primary` field is always required — it comes from the career goal gathered above.
+
+**If the student declines the profile**, emit a minimal profile with just the career goal:
+
+<!-- GOAL_PROFILE_JSON -->
+```json
+{
+  "createdAt": "2026-04-20T14:30:00Z",
+  "updatedAt": "2026-04-20T14:30:00Z",
+  "careerGoals": {
+    "primary": "Cloud Infrastructure Engineer"
+  },
+  "sectionsOffered": [],
+  "sectionsCompleted": []
+}
+```
+<!-- /GOAL_PROFILE_JSON -->
+
+Then continue to Step 2 using whatever goal information is available.
 
 ### Step 2: Extract Required Competencies
 

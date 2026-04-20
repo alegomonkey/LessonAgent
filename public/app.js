@@ -6,6 +6,7 @@ let studentName = "";
 let pipelineStep = "ready";
 let pendingFileText = null;
 let pendingFileName = null;
+let hasGoalProfile = false;
 
 // ── DOM refs ─────────────────────────────────────
 
@@ -23,6 +24,9 @@ const uploadArea = document.getElementById("upload-area");
 const uploadDropzone = document.getElementById("upload-dropzone");
 const fileUpload = document.getElementById("file-upload");
 const btnBrowse = document.getElementById("btn-browse");
+const profileDownload = document.getElementById("profile-download");
+const downloadProfileBtn = document.getElementById("download-profile-btn");
+const downloadDropdown = document.getElementById("download-dropdown");
 
 // ── Pipeline step helpers ────────────────────────
 
@@ -201,6 +205,9 @@ newSessionBtn.addEventListener("click", () => {
   pipelineStep = "ready";
   pendingFileText = null;
   pendingFileName = null;
+  hasGoalProfile = false;
+  profileDownload.style.display = "none";
+  downloadDropdown.classList.remove("download-dropdown--visible");
   hideUploadArea();
   onboardingForm.reset();
   messagesContainer.innerHTML =
@@ -374,11 +381,15 @@ async function sendMessage() {
       throw new Error(err.error || "Request failed.");
     }
 
-    // Remove typing indicator, start building the response
-    typingEl.remove();
-    const assistantEl = appendMessage("assistant", "");
+    // Reuse the typing-indicator bubble as the assistant message. The spinner
+    // stays visible (inside the same bubble) for the entire SSE stream and is
+    // removed only when the stream completes.
+    const assistantEl = typingEl;
     const contentEl = assistantEl.querySelector(".message-content");
+    const textEl = contentEl.querySelector(".streaming-text");
+    const indicatorEl = contentEl.querySelector(".loading-indicator");
     let fullText = "";
+    let labelRemoved = false;
 
     // Read SSE stream
     const reader = res.body.getReader();
@@ -401,8 +412,13 @@ async function sendMessage() {
         try {
           const event = JSON.parse(jsonStr);
           if (event.type === "text") {
+            if (!labelRemoved) {
+              const labelEl = indicatorEl.querySelector(".loading-text");
+              if (labelEl) labelEl.remove();
+              labelRemoved = true;
+            }
             fullText += event.content;
-            contentEl.innerHTML = renderMarkdown(fullText);
+            textEl.innerHTML = renderMarkdown(fullText);
             scrollToBottom();
           } else if (event.type === "done") {
             // Update pipeline state from server
@@ -410,9 +426,19 @@ async function sendMessage() {
               pipelineStep = event.pipelineStep;
               updateButtonStates();
             }
+            // Show profile download button if profile is available
+            if (event.hasGoalProfile) {
+              hasGoalProfile = true;
+              profileDownload.style.display = "";
+            }
+            // Strip goal profile JSON marker block from rendered content
+            fullText = stripProfileMarker(fullText);
+            textEl.innerHTML = renderMarkdown(fullText);
+            indicatorEl.remove();
             hideUploadArea();
           } else if (event.type === "error") {
-            contentEl.textContent = event.content;
+            textEl.textContent = event.content;
+            indicatorEl.remove();
             assistantEl.classList.add("error");
           }
         } catch {
@@ -421,8 +447,12 @@ async function sendMessage() {
       }
     }
 
-    if (!fullText && !contentEl.textContent) {
-      contentEl.textContent = "No response received. Please try again.";
+    // Safety net: if the loop exited without a done/error event, ensure the
+    // spinner is removed so the user isn't left staring at a perpetual spinner.
+    if (indicatorEl.isConnected) indicatorEl.remove();
+
+    if (!fullText && !textEl.textContent) {
+      textEl.textContent = "No response received. Please try again.";
     }
   } catch (err) {
     typingEl.remove();
@@ -464,7 +494,11 @@ function appendTypingIndicator() {
   const content = document.createElement("div");
   content.className = "message-content";
   content.innerHTML =
-    '<div class="typing-indicator"><span></span><span></span><span></span></div>';
+    '<div class="streaming-text"></div>' +
+    '<div class="loading-indicator">' +
+      '<div class="loading-spinner" aria-hidden="true"></div>' +
+      '<span class="loading-text">Working on your request</span>' +
+    '</div>';
 
   wrapper.appendChild(content);
   messagesContainer.appendChild(wrapper);
@@ -573,3 +607,56 @@ function escapeHtml(text) {
   div.appendChild(document.createTextNode(text));
   return div.innerHTML;
 }
+
+// ── Goal profile helpers ────────────────────────
+
+const PROFILE_MARKER_RE =
+  /<!-- GOAL_PROFILE_JSON -->\s*```(?:json)?\s*[\s\S]*?\s*```\s*<!-- \/GOAL_PROFILE_JSON -->/g;
+
+function stripProfileMarker(text) {
+  return text.replace(PROFILE_MARKER_RE, "").trim();
+}
+
+// Download button toggle
+downloadProfileBtn.addEventListener("click", (e) => {
+  e.stopPropagation();
+  downloadDropdown.classList.toggle("download-dropdown--visible");
+});
+
+// Close dropdown when clicking outside
+document.addEventListener("click", () => {
+  downloadDropdown.classList.remove("download-dropdown--visible");
+});
+
+// Download format selection
+downloadDropdown.addEventListener("click", async (e) => {
+  const btn = e.target.closest(".dropdown-item");
+  if (!btn || !sessionId) return;
+
+  const format = btn.dataset.format;
+  downloadDropdown.classList.remove("download-dropdown--visible");
+
+  try {
+    const res = await fetch(
+      `/api/session/${sessionId}/goal-profile?format=${format}`
+    );
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || "Download failed.");
+    }
+
+    const blob = await res.blob();
+    const ext = format === "markdown" ? "md" : "json";
+    const safeName = studentName.replace(/[^a-zA-Z0-9\-_ ]/g, "").replace(/\s+/g, "-");
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${safeName}-goal-profile.${ext}`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (err) {
+    alert(err.message);
+  }
+});

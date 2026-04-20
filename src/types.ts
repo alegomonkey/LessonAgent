@@ -6,6 +6,37 @@ export interface StudentProfile {
   course: string;
 }
 
+export interface StudentGoalProfile {
+  createdAt: string;
+  updatedAt: string;
+
+  careerGoals: {
+    primary: string;
+    secondary?: string;
+    targetEmployers?: string[];
+    industryPreference?: string;
+    timeline?: string;
+  };
+
+  motivations?: {
+    whatExcitesYou?: string;
+    whyThisPath?: string;
+    problemsToSolve?: string;
+  };
+
+  personalContext?: {
+    workStatus?: string;
+    relevantExperience?: string;
+    constraints?: string;
+    perspective?: string;
+  };
+
+  skillsSelfAssessment?: Record<string, string>;
+
+  sectionsOffered: string[];
+  sectionsCompleted: string[];
+}
+
 export type PipelineStep = "ready" | "analyzed" | "aligned" | "proposed";
 
 export interface ChatSession {
@@ -14,6 +45,7 @@ export interface ChatSession {
   sdkSessionId?: string;
   pipelineStep: PipelineStep;
   createdAt: number;
+  goalProfile?: StudentGoalProfile;
 }
 
 export interface SessionResult {

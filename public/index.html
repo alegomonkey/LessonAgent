@@ -68,7 +68,16 @@
         <span class="logo-icon small">A</span>
         <span class="header-title">AssignmentAlly</span>
       </div>
-      <button id="new-session-btn" class="btn-ghost" title="Start over">New Session</button>
+      <div class="header-right">
+        <div class="profile-download" id="profile-download" style="display: none">
+          <button id="download-profile-btn" class="btn-ghost" title="Download your goal profile">Goal Profile</button>
+          <div class="download-dropdown" id="download-dropdown">
+            <button class="dropdown-item" data-format="markdown">Download as Markdown</button>
+            <button class="dropdown-item" data-format="json">Download as JSON</button>
+          </div>
+        </div>
+        <button id="new-session-btn" class="btn-ghost" title="Start over">New Session</button>
+      </div>
     </header>
 
     <div id="messages" class="messages">
