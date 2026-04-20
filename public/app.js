@@ -233,9 +233,12 @@ quickActions.addEventListener("click", (e) => {
     return;
   }
 
-  // For align and build, send prompt directly
+  // For align and build, load the prompt into the text field so the user can
+  // review or edit it before sending.
   chatInput.value = chip.dataset.prompt;
-  sendMessage();
+  chatInput.focus();
+  chatInput.setSelectionRange(chatInput.value.length, chatInput.value.length);
+  chatInput.dispatchEvent(new Event("input"));
 });
 
 // New session
