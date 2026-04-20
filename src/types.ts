@@ -46,6 +46,10 @@ export interface ChatSession {
   pipelineStep: PipelineStep;
   createdAt: number;
   goalProfile?: StudentGoalProfile;
+  // Set by the pipeline-gate skill when it reports canAdvance=false — tells
+  // the UI to render the halfway "awaiting input" marker on the connector
+  // after this phase's chip. Persists across tangential (no-gate) turns.
+  awaitingInfo?: "analyze" | "align" | "build" | null;
 }
 
 export interface SessionResult {

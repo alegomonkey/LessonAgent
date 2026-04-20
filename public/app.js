@@ -5,6 +5,7 @@ let isStreaming = false;
 let studentName = "";
 let pipelineStep = "ready";
 let activePhase = null; // "analyze" | "align" | "build" | null — chip currently pulsing
+let awaitingInfo = null; // "analyze" | "align" | "build" | null — pipeline-gate says agent needs info to finish this phase
 let pendingFileText = null;
 let pendingFileName = null;
 let hasGoalProfile = false;
@@ -72,8 +73,14 @@ function updateButtonStates() {
     btn.disabled = false;
     btn.title = "";
   });
-  connector1.classList.remove("step-connector--completed");
-  connector2.classList.remove("step-connector--completed");
+  connector1.classList.remove(
+    "step-connector--completed",
+    "step-connector--partial"
+  );
+  connector2.classList.remove(
+    "step-connector--completed",
+    "step-connector--partial"
+  );
 
   // Analyze button
   if (idx >= 1) {
@@ -111,6 +118,16 @@ function updateButtonStates() {
   if (idx >= 2) {
     connector2.classList.add("step-connector--completed");
   }
+
+  // Awaiting-info halfway marker — only paints on the connector AFTER the
+  // phase-in-progress chip, and never replaces an already-completed connector.
+  if (awaitingInfo === "analyze" && idx < 1) {
+    connector1.classList.add("step-connector--partial");
+  } else if (awaitingInfo === "align" && idx < 2) {
+    connector2.classList.add("step-connector--partial");
+  }
+  // awaitingInfo === "build": no connector after chip 3, so the chip stays
+  // --current. (Visible build-awaiting UX is deliberately out of scope.)
 
   // Build button
   if (idx >= 3) {
@@ -286,6 +303,7 @@ newSessionBtn.addEventListener("click", () => {
   studentName = "";
   pipelineStep = "ready";
   activePhase = null;
+  awaitingInfo = null;
   pendingFileText = null;
   pendingFileName = null;
   hasGoalProfile = false;
@@ -525,6 +543,9 @@ async function sendMessage() {
             activePhase = null;
             if (event.pipelineStep) {
               pipelineStep = event.pipelineStep;
+            }
+            if (typeof event.awaitingInfo !== "undefined") {
+              awaitingInfo = event.awaitingInfo;
             }
             updateButtonStates();
             // Show profile download button if profile is available

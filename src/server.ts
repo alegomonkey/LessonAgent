@@ -225,7 +225,11 @@ app.post("/api/session", (req: Request, res: Response) => {
   };
 
   sessions.set(session.id, session);
-  res.json({ sessionId: session.id, pipelineStep: session.pipelineStep });
+  res.json({
+    sessionId: session.id,
+    pipelineStep: session.pipelineStep,
+    awaitingInfo: session.awaitingInfo ?? null,
+  });
 });
 
 // ── Chat endpoint — streams agent responses via SSE ──────────────────
@@ -390,12 +394,17 @@ app.post("/api/chat", async (req: Request, res: Response) => {
         if (gate) {
           if (gate.canAdvance) {
             advancePipeline(session, gate.phase);
+            session.awaitingInfo = null;
+          } else {
+            session.awaitingInfo = gate.phase;
           }
-          // canAdvance === false — explicitly leave pipelineStep alone.
         } else if (phaseInTurn && !endsWithQuestion(accumulatedText)) {
           // Fallback only when the agent forgot to call pipeline-gate.
           advancePipeline(session, phaseInTurn);
+          session.awaitingInfo = null;
         }
+        // No gate + question-ending: leave session.awaitingInfo as-is so a
+        // tangential turn doesn't erase the halfway marker.
 
         const success = result.subtype === "success";
 
@@ -405,6 +414,7 @@ app.post("/api/chat", async (req: Request, res: Response) => {
             sessionId: sdkSessionId,
             success,
             pipelineStep: session.pipelineStep,
+            awaitingInfo: session.awaitingInfo ?? null,
             hasGoalProfile: !!session.goalProfile,
           })}\n\n`
         );
