@@ -24,6 +24,12 @@ Each step builds on the previous one. The analysis informs the alignment, and bo
 
 ## Setup
 
+Create a new file named `.env` at the project root and enter your key:
+```
+API_KEY=sk-ant-...
+```
+
+In your terminal: 
 ```bash
 npm install
 ```
@@ -36,7 +42,8 @@ Start the development server:
 npm run dev
 ```
 
-Then open [http://localhost:3000](http://localhost:3000) in your browser.
+Click the link in your terminal or 
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
 ### Getting Started
 
