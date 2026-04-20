@@ -1,3 +1,13 @@
+---
+title: AssignmentAlly
+emoji: 📚
+colorFrom: indigo
+colorTo: purple
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # AssignmentAlly
 
 A web app that helps students build augmented versions of their coursework — richer, career-connected assignments that meet all original learning goals and rubric criteria, plus add meaningful depth.
