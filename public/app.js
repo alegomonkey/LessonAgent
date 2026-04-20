@@ -4,6 +4,7 @@ let sessionId = null;
 let isStreaming = false;
 let studentName = "";
 let pipelineStep = "ready";
+let activePhase = null; // "analyze" | "align" | "build" | null — chip currently pulsing
 let pendingFileText = null;
 let pendingFileName = null;
 let hasGoalProfile = false;
@@ -36,6 +37,23 @@ function stepIndex(step) {
   return STEPS.indexOf(step);
 }
 
+function inferPhaseFromInput(message, fileText) {
+  if (fileText) return "analyze";
+
+  const analyzeBtn = quickActions.querySelector('[data-step="analyze"]');
+  const alignBtn = quickActions.querySelector('[data-step="align"]');
+  const buildBtn = quickActions.querySelector('[data-step="build"]');
+  if (message === analyzeBtn.dataset.prompt) return "analyze";
+  if (message === alignBtn.dataset.prompt) return "align";
+  if (message === buildBtn.dataset.prompt) return "build";
+
+  const idx = stepIndex(pipelineStep);
+  if (idx === 0) return "analyze";
+  if (idx === 1) return "align";
+  if (idx === 2) return "build";
+  return null;
+}
+
 function updateButtonStates() {
   const analyzeBtn = quickActions.querySelector('[data-step="analyze"]');
   const alignBtn = quickActions.querySelector('[data-step="align"]');
@@ -49,7 +67,8 @@ function updateButtonStates() {
     btn.classList.remove(
       "action-chip--completed",
       "action-chip--current",
-      "action-chip--locked"
+      "action-chip--locked",
+      "action-chip--working"
     );
     btn.disabled = false;
     btn.title = "";
@@ -105,6 +124,28 @@ function updateButtonStates() {
         ? "Complete analysis and alignment first"
         : "Complete career alignment first";
     buildBtn.querySelector(".step-indicator").textContent = "3";
+  }
+
+  // Working overlay — active phase pulses with a spinner in its step indicator.
+  // Takes visual priority over completed/current/locked via CSS source order.
+  if (activePhase) {
+    const activeBtn = quickActions.querySelector(
+      `[data-step="${activePhase}"]`
+    );
+    if (activeBtn) {
+      activeBtn.classList.add("action-chip--working");
+      const indicator = activeBtn.querySelector(".step-indicator");
+      indicator.textContent = "";
+      const spinner = document.createElement("span");
+      spinner.className = "chip-spinner";
+      spinner.setAttribute("aria-hidden", "true");
+      indicator.appendChild(spinner);
+    }
+  }
+
+  // Preserve streaming-lock: chips stay disabled until the turn ends.
+  if (isStreaming) {
+    [analyzeBtn, alignBtn, buildBtn].forEach((btn) => (btn.disabled = true));
   }
 }
 
@@ -203,6 +244,7 @@ newSessionBtn.addEventListener("click", () => {
   isStreaming = false;
   studentName = "";
   pipelineStep = "ready";
+  activePhase = null;
   pendingFileText = null;
   pendingFileName = null;
   hasGoalProfile = false;
@@ -360,9 +402,15 @@ async function sendMessage() {
   chatInput.value = "";
   chatInput.style.height = "auto";
 
+  // Optimistically highlight the chip for the phase this submission targets —
+  // server "phase" SSE events override this later, and "done"/setStreaming(false)
+  // clear it at turn end.
+  activePhase = inferPhaseFromInput(text, fileText);
+
   // Add typing indicator
   const typingEl = appendTypingIndicator();
   setStreaming(true);
+  updateButtonStates();
 
   try {
     const body = { sessionId, message: text };
@@ -420,12 +468,17 @@ async function sendMessage() {
             fullText += event.content;
             textEl.innerHTML = renderMarkdown(fullText);
             scrollToBottom();
+          } else if (event.type === "phase") {
+            activePhase = event.activePhase || null;
+            if (event.pipelineStep) pipelineStep = event.pipelineStep;
+            updateButtonStates();
           } else if (event.type === "done") {
-            // Update pipeline state from server
+            // Turn ended — clear active-phase spinner and sync pipelineStep
+            activePhase = null;
             if (event.pipelineStep) {
               pipelineStep = event.pipelineStep;
-              updateButtonStates();
             }
+            updateButtonStates();
             // Show profile download button if profile is available
             if (event.hasGoalProfile) {
               hasGoalProfile = true;
@@ -517,6 +570,8 @@ function setStreaming(val) {
       .querySelectorAll(".action-chip")
       .forEach((c) => (c.disabled = true));
   } else {
+    // Safety net — clear spinner if stream ended without a done/phase event
+    activePhase = null;
     updateButtonStates();
   }
 

@@ -33,6 +33,70 @@ const PIPELINE_PROMPTS = {
     "Build a formal proposal for the augmented assignment that I can present to my professor.",
 } as const;
 
+// Maps any pipeline-related identifier (skill, agent, or slash-command name)
+// to a pipeline phase. The agent may invoke a phase's work via the Skill tool,
+// the Agent/Task tool, or by reading a skill's SKILL.md directly — detection
+// needs to cover all three paths.
+const NAME_TO_PHASE: Record<string, "analyze" | "align" | "build"> = {
+  // Skills
+  "assignment-analysis": "analyze",
+  "career-alignment": "align",
+  "proposal-builder": "build",
+  // Agents
+  "assignment-analyzer": "analyze",
+  "career-matcher": "align",
+  "proposal-writer": "build",
+  // Slash commands
+  "analyze-assignment": "analyze",
+  "align-career": "align",
+  "build-proposal": "build",
+};
+
+function detectPhaseFromBlock(block: {
+  type: string;
+  name?: string;
+  input?: Record<string, unknown>;
+}): "analyze" | "align" | "build" | undefined {
+  if (block.type !== "tool_use") return undefined;
+  const input = block.input ?? {};
+
+  // 1) Skill tool — { skill: "<name>", ... }
+  if (block.name === "Skill") {
+    const skill = input.skill as string | undefined;
+    if (skill && NAME_TO_PHASE[skill]) return NAME_TO_PHASE[skill];
+  }
+
+  // 2) Agent/Task tool — { subagent_type: "<name>", ... }
+  if (block.name === "Agent" || block.name === "Task") {
+    const agent = (input.subagent_type ?? input.agent_type) as
+      | string
+      | undefined;
+    if (agent && NAME_TO_PHASE[agent]) return NAME_TO_PHASE[agent];
+  }
+
+  // 3) Read tool opening a skill's SKILL.md — strong signal that the agent
+  //    is actually executing that phase even if no Skill/Agent tool was used.
+  if (block.name === "Read") {
+    const p = (input.file_path ?? "") as string;
+    const m = p.match(/\/skills\/([^/]+)\/SKILL\.md$/i);
+    if (m && NAME_TO_PHASE[m[1]]) return NAME_TO_PHASE[m[1]];
+  }
+
+  // 4) Fallback — scan the stringified input for any mapped identifier. Catches
+  //    cases like Bash/Glob reading skill directories, or tools we don't know
+  //    about whose input happens to name a skill/agent/command.
+  try {
+    const inputStr = JSON.stringify(input);
+    for (const [name, phase] of Object.entries(NAME_TO_PHASE)) {
+      if (inputStr.includes(name)) return phase;
+    }
+  } catch {
+    // ignore — stringify can fail on circular refs
+  }
+
+  return undefined;
+}
+
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "..", "public")));
 
@@ -185,7 +249,14 @@ app.post("/api/chat", async (req: Request, res: Response) => {
     for await (const msg of conversation) {
       if (msg.type === "assistant") {
         const content = (msg as Record<string, unknown>).message as
-          | { content?: Array<{ type: string; text?: string }> }
+          | {
+              content?: Array<{
+                type: string;
+                text?: string;
+                name?: string;
+                input?: Record<string, unknown>;
+              }>;
+            }
           | undefined;
         if (content?.content) {
           for (const block of content.content) {
@@ -194,6 +265,18 @@ app.post("/api/chat", async (req: Request, res: Response) => {
               res.write(
                 `data: ${JSON.stringify({ type: "text", content: block.text })}\n\n`
               );
+            } else if (block.type === "tool_use") {
+              const phase = detectPhaseFromBlock(block);
+              if (phase) {
+                advancePipeline(session, phase);
+                res.write(
+                  `data: ${JSON.stringify({
+                    type: "phase",
+                    activePhase: phase,
+                    pipelineStep: session.pipelineStep,
+                  })}\n\n`
+                );
+              }
             }
           }
         }
@@ -212,11 +295,7 @@ app.post("/api/chat", async (req: Request, res: Response) => {
           session.goalProfile = profileJson;
         }
 
-        // Advance pipeline state on success
         const success = result.subtype === "success";
-        if (success && stepForPrompt) {
-          advancePipeline(session, stepForPrompt);
-        }
 
         res.write(
           `data: ${JSON.stringify({
