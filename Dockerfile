@@ -7,23 +7,22 @@ COPY src ./src
 RUN npm run build
 
 FROM node:22-slim
-RUN useradd --create-home --uid 1000 user
-WORKDIR /home/user/app
+WORKDIR /home/node/app
 
-COPY --chown=user package.json package-lock.json ./
+COPY --chown=node:node package.json package-lock.json ./
 RUN npm ci --omit=dev && npm cache clean --force
 
-COPY --from=builder --chown=user /build/dist ./dist
-COPY --chown=user public ./public
-COPY --chown=user CLAUDE.md ./CLAUDE.md
-COPY --chown=user .claude-plugin ./.claude-plugin
-COPY --chown=user skills ./skills
-COPY --chown=user agents ./agents
-COPY --chown=user commands ./commands
-COPY --chown=user data ./data
-COPY --chown=user examples ./examples
+COPY --from=builder --chown=node:node /build/dist ./dist
+COPY --chown=node:node public ./public
+COPY --chown=node:node CLAUDE.md ./CLAUDE.md
+COPY --chown=node:node .claude-plugin ./.claude-plugin
+COPY --chown=node:node skills ./skills
+COPY --chown=node:node agents ./agents
+COPY --chown=node:node commands ./commands
+COPY --chown=node:node data ./data
+COPY --chown=node:node examples ./examples
 
-USER user
+USER node
 ENV PORT=7860
 ENV NODE_ENV=production
 EXPOSE 7860
