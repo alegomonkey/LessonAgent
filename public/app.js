@@ -762,7 +762,7 @@ function appendTypingIndicator() {
     '<div class="streaming-text"></div>' +
     '<div class="loading-indicator">' +
       '<div class="loading-spinner" aria-hidden="true"></div>' +
-      '<span class="loading-text">Tokenizing input...</span>' +
+      '<span class="loading-text">Thinking...</span>' +
     '</div>';
 
   wrapper.appendChild(content);
