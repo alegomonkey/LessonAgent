@@ -74,7 +74,7 @@ function describeToolUse(block: {
 
   if (name === "Skill") {
     const skill = stripPluginPrefix(input.skill as string | undefined);
-    if (skill === "assignment-analysis") return "Analyzing assignment...";
+    if (skill === "assignment-analysis") return "Analyzing your material...";
     if (skill === "career-alignment") return "Aligning with career goals...";
     if (skill === "proposal-builder") return "Building proposal...";
     // Internal skills — do not announce to the user.
@@ -86,7 +86,7 @@ function describeToolUse(block: {
     const agent = stripPluginPrefix(
       (input.subagent_type ?? input.agent_type) as string | undefined
     );
-    if (agent === "assignment-analyzer") return "Analyzing assignment...";
+    if (agent === "assignment-analyzer") return "Analyzing your material...";
     if (agent === "career-matcher") return "Matching career opportunities...";
     if (agent === "proposal-writer") return "Writing proposal...";
     return agent ? `Delegating to ${agent}...` : "Delegating work...";

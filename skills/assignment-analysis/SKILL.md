@@ -24,14 +24,21 @@ Follow these steps in order. Do not skip steps unless the user explicitly reques
 
 ### Step 1: Accept the Input
 
-Accept the assignment in any format:
+Accept the assignment in any format. The student may share a full syllabus, a single assignment prompt, pasted LMS text, or a file — they are always aiming to analyze **one specific assignment**, regardless of what they upload.
 
-- **Full syllabus**: If the student provides a whole syllabus, ask which specific assignment they want to augment, then extract data for that assignment in the context of the full course.
-- **Single assignment prompt**: Parse directly.
-- **Pasted text from an LMS**: Handle Canvas, Blackboard, and Moodle formatting artifacts — strip HTML tags, preserve list structure and table formatting, separate boilerplate from instructor content.
-- **File path**: Read the file and determine format from extension and content.
+**First, detect what was shared.** Scan the input for signals:
 
-Use the parsing heuristics in `references/syllabus-parsing-patterns.md` to identify section boundaries. When a section is ambiguous or missing, ask the student rather than guessing.
+- **Full syllabus** — multiple assignments listed, course-wide sections (schedule, policies, grading breakdown, learning outcomes for the course).
+- **Single assignment prompt** — one deliverable described, rubric for that deliverable, no course schedule.
+- **Ambiguous** — partial syllabus, or a syllabus excerpt with one assignment highlighted.
+
+**Then respond based on what you detected — don't ask the student to categorize it for you:**
+
+- If it's a **single assignment**, proceed directly to Step 2. Briefly confirm what you found ("I see this is the prompt for [assignment name] — analyzing now.") so the student knows you understood.
+- If it's a **full syllabus**, list the assignments you found and ask which one to focus on. Do not ask them to re-upload or clarify the document type. **Never ask them to also upload the specific assignment** — the syllabus is enough to proceed. If the syllabus has the assignment prompt inline, use that; if the prompt is external, ask them to paste it only after they've chosen which assignment to focus on.
+- If it's **ambiguous**, state your best guess and confirm in the same turn (e.g., "This looks like the prompt for Speech 4 — should I analyze that, or did you mean to send the full syllabus?").
+
+Handle LMS formatting artifacts (Canvas, Blackboard, Moodle) transparently — strip HTML, preserve list and table structure, separate boilerplate from instructor content. Use the parsing heuristics in `references/syllabus-parsing-patterns.md` to identify section boundaries. When a section is ambiguous or missing, ask the student rather than guessing.
 
 ### Step 2: Extract Learning Outcomes
 
