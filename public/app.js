@@ -173,11 +173,36 @@ function updateButtonStates() {
 
 // ── Onboarding ───────────────────────────────────
 
+const careerChipGrid = document.getElementById("career-chips");
+careerChipGrid.addEventListener("click", (e) => {
+  const chip = e.target.closest(".chip-option");
+  if (!chip) return;
+  const selected = chip.classList.toggle("chip-option--selected");
+  chip.setAttribute("aria-pressed", String(selected));
+});
+
 onboardingForm.addEventListener("submit", async (e) => {
   e.preventDefault();
 
-  const formData = new FormData(onboardingForm);
-  const data = Object.fromEntries(formData.entries());
+  const selectedChips = [...careerChipGrid.querySelectorAll(".chip-option--selected")]
+    .map((c) => c.dataset.value);
+  if (selectedChips.length === 0) {
+    alert("Pick at least one career area that sounds interesting.");
+    return;
+  }
+
+  const details = document.getElementById("careerDetails").value.trim();
+  const careerGoals = details
+    ? `${selectedChips.join(", ")}. More specifically: ${details}`
+    : selectedChips.join(", ");
+
+  const data = {
+    name: document.getElementById("name").value,
+    major: document.getElementById("major").value,
+    year: document.getElementById("year").value,
+    course: document.getElementById("course").value,
+    careerGoals,
+  };
   studentName = data.name;
 
   const btn = onboardingForm.querySelector("button[type=submit]");

@@ -44,10 +44,24 @@
         </div>
 
         <div class="form-group">
-          <label for="careerGoals">What do you want to do after graduation?</label>
-          <textarea id="careerGoals" name="careerGoals" rows="2"
-            placeholder="e.g. I want to work as a cloud infrastructure engineer at a company like AWS or Cloudflare"
-            required></textarea>
+          <label>What kinds of jobs or careers might you be interested in?</label>
+          <p class="form-hint">Pick any that sound interesting — you can choose more than one.</p>
+          <div class="chip-grid" id="career-chips" role="group" aria-label="Career interests">
+            <button type="button" class="chip-option" data-value="Software & Tech" aria-pressed="false">Software & Tech</button>
+            <button type="button" class="chip-option" data-value="Engineering" aria-pressed="false">Engineering</button>
+            <button type="button" class="chip-option" data-value="Data & AI" aria-pressed="false">Data & AI</button>
+            <button type="button" class="chip-option" data-value="Healthcare" aria-pressed="false">Healthcare</button>
+            <button type="button" class="chip-option" data-value="Business & Finance" aria-pressed="false">Business & Finance</button>
+            <button type="button" class="chip-option" data-value="Education" aria-pressed="false">Education</button>
+            <button type="button" class="chip-option" data-value="Research & Academia" aria-pressed="false">Research & Academia</button>
+            <button type="button" class="chip-option" data-value="Design & Creative" aria-pressed="false">Design & Creative</button>
+            <button type="button" class="chip-option" data-value="Law & Policy" aria-pressed="false">Law & Policy</button>
+            <button type="button" class="chip-option" data-value="Public Service / Nonprofit" aria-pressed="false">Public Service / Nonprofit</button>
+            <button type="button" class="chip-option" data-value="Entrepreneurship" aria-pressed="false">Entrepreneurship</button>
+            <button type="button" class="chip-option" data-value="Still exploring" aria-pressed="false">Still exploring</button>
+          </div>
+          <textarea id="careerDetails" rows="2"
+            placeholder="Optional: anything more specific? e.g. Controls Engineer at a Maine paper mill"></textarea>
         </div>
 
         <div class="form-group">
