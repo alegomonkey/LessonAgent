@@ -890,3 +890,186 @@ html, body {
     transform: translateY(-8px);
   }
 }
+
+/* ── Onboarding: examples link ──────────────── */
+
+.examples-link {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  margin-bottom: 18px;
+  background: var(--blue-50);
+  border: 1px dashed var(--blue-500);
+  border-radius: var(--radius-sm);
+  color: var(--blue-700);
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.examples-link:hover {
+  background: var(--blue-100);
+  border-style: solid;
+}
+
+/* ── Examples screen ────────────────────────── */
+
+#examples {
+  flex-direction: column;
+  height: 100%;
+  background: var(--gray-50);
+}
+
+.examples-header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--gray-200);
+  background: #fff;
+}
+
+.examples-header .btn-ghost {
+  justify-self: start;
+}
+
+.examples-header .header-title {
+  justify-self: center;
+}
+
+.examples-header-spacer {
+  justify-self: end;
+}
+
+.examples-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 32px 20px 48px;
+}
+
+.examples-list,
+.examples-detail {
+  max-width: 780px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.examples-intro {
+  color: var(--gray-600);
+  font-size: 15px;
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+.examples-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.example-card {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s, transform 0.15s;
+}
+
+.example-card:hover {
+  border-color: var(--blue-500);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  transform: translateY(-1px);
+}
+
+.example-card-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 6px;
+  line-height: 1.35;
+}
+
+.example-card-scenario {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.example-card-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--blue-600);
+}
+
+.examples-detail {
+  display: none;
+}
+
+#examples.detail-view .examples-list {
+  display: none;
+}
+
+#examples.detail-view .examples-detail {
+  display: block;
+}
+
+.examples-detail-back {
+  margin-bottom: 16px;
+}
+
+.example-intro {
+  padding: 20px 22px;
+  background: #fff;
+  border: 1px solid var(--gray-200);
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+}
+
+.example-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--gray-900);
+  margin-bottom: 10px;
+  line-height: 1.3;
+}
+
+.example-scenario {
+  font-size: 14px;
+  color: var(--gray-600);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.example-turns {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Inside the detail view, drop the .message wrapper's own centering so the
+   bubbles sit flush with the intro card's width. */
+.example-turns .message {
+  max-width: none;
+  margin: 0;
+}
+
+.examples-loading,
+.examples-error {
+  color: var(--gray-500);
+  font-size: 14px;
+  padding: 16px 0;
+  text-align: center;
+}
+
+.examples-error {
+  color: var(--red-500);
+}

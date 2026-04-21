@@ -2,6 +2,7 @@ import "./polyfills.js";
 import "dotenv/config";
 import { randomUUID } from "crypto";
 import express, { type Request, type Response } from "express";
+import fs from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 import multer from "multer";
@@ -205,6 +206,171 @@ app.post(
     }
   }
 );
+
+// ── Example interactions ─────────────────────────────────────────────
+// Expose the positive example transcripts (P*.md) from examples/interactions
+// to the UI so students can preview what a good session looks like. Negative
+// examples (N*.md) are deliberately excluded — they exist for agent training,
+// not for students to emulate.
+
+const EXAMPLES_DIR = path.join(__dirname, "..", "examples", "interactions");
+const POSITIVE_FILE_RE = /^(P\d+)-.*\.md$/;
+const EXAMPLE_ID_RE = /^P\d+$/;
+
+function parseExampleMetadata(
+  markdown: string
+): { title: string; scenario: string } {
+  const titleMatch = markdown.match(/^#\s+(.+)$/m);
+  // Strip the "P1: " prefix used internally so the card title reads naturally.
+  const title = titleMatch
+    ? titleMatch[1].replace(/^P\d+:\s*/, "").trim()
+    : "";
+
+  // First paragraph under the "## Scenario" heading, up to the next blank
+  // line or heading. Falls back to empty string if the section is missing.
+  const scenarioMatch = markdown.match(
+    /^##\s+Scenario\s*\n+([^\n][\s\S]*?)(?:\n\s*\n|\n##\s)/m
+  );
+  const scenario = scenarioMatch ? scenarioMatch[1].trim() : "";
+
+  return { title, scenario };
+}
+
+type ExampleTurn =
+  | { role: "user"; content: string }
+  | { role: "assistant"; content: string };
+
+// Extract just the chat transcript the student would actually see in a live
+// session: user messages and the agent's user-facing responses. Drops the
+// meta sections (Scenario, Data Sources Used, Why This Interaction Succeeds)
+// and the "Agent Internal Reasoning" blocks, which are authoring notes, not
+// part of the real interaction.
+function parseExampleTurns(markdown: string): ExampleTurn[] {
+  // Isolate the conversation section. If "Why This Interaction Succeeds"
+  // exists, use it as a hard right boundary.
+  const convoStart = markdown.search(/^##\s+Conversation\s*$/m);
+  if (convoStart < 0) return [];
+  let convo = markdown.slice(convoStart).replace(/^##\s+Conversation\s*\n+/, "");
+  const whyIdx = convo.search(/^##\s+Why This Interaction Succeeds\s*$/m);
+  if (whyIdx >= 0) convo = convo.slice(0, whyIdx);
+
+  // Drop every "Agent Internal Reasoning" block. It ends at the next known
+  // marker — either "Agent Response" or the next "Turn N —" header.
+  convo = convo.replace(
+    /\*\*Agent Internal Reasoning:\*\*[\s\S]*?(?=\*\*Agent Response:\*\*|\*\*Turn \d+ — )/g,
+    ""
+  );
+
+  // Walk remaining markers in order: each becomes a turn. Everything between
+  // one marker and the next is that turn's content.
+  const markerRe =
+    /\*\*(?:Turn \d+ — [^:*]+:|Agent Response:)\*\*/g;
+  const matches: Array<{ kind: "user" | "assistant"; end: number; start: number }> =
+    [];
+  for (const m of convo.matchAll(markerRe)) {
+    const kind = m[0].startsWith("**Agent Response") ? "assistant" : "user";
+    matches.push({ kind, start: m.index!, end: m.index! + m[0].length });
+  }
+
+  const turns: ExampleTurn[] = [];
+  for (let i = 0; i < matches.length; i++) {
+    const m = matches[i];
+    const contentStart = m.end;
+    const contentEnd = i + 1 < matches.length ? matches[i + 1].start : convo.length;
+    let content = convo.slice(contentStart, contentEnd).trim();
+
+    // Strip the "---" turn separator that often precedes the next Turn header,
+    // plus leading/trailing horizontal rules that were only there as visual
+    // dividers between Turn N and Turn N+1 in the source file.
+    content = content.replace(/\n?\s*---+\s*$/, "").trim();
+    content = content.replace(/^---+\s*\n?/, "").trim();
+
+    // Unwrap surrounding quotation marks: the source files stylize every
+    // user turn and most agent responses as "..." but a real chat bubble
+    // doesn't show quotes around itself.
+    content = stripWrappingQuotes(content);
+
+    if (content) turns.push({ role: m.kind, content });
+  }
+
+  return turns;
+}
+
+function stripWrappingQuotes(text: string): string {
+  // Only unwrap when the whole turn is one quoted block — don't touch
+  // inline quotes inside the content.
+  const trimmed = text.trim();
+  if (
+    (trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+    (trimmed.startsWith("“") && trimmed.endsWith("”"))
+  ) {
+    const inner = trimmed.slice(1, -1);
+    // Guard: if the inner text also contains unescaped quote pairs that would
+    // indicate this isn't a single wrapping quote, keep it as-is.
+    if (!inner.includes('"\n') && !inner.includes('\n"')) {
+      return inner.trim();
+    }
+  }
+  return trimmed;
+}
+
+app.get("/api/examples", async (_req: Request, res: Response) => {
+  try {
+    const entries = await fs.readdir(EXAMPLES_DIR);
+    const positive = entries
+      .filter((name) => POSITIVE_FILE_RE.test(name))
+      .sort();
+
+    const examples = await Promise.all(
+      positive.map(async (filename) => {
+        const id = filename.match(POSITIVE_FILE_RE)![1];
+        const markdown = await fs.readFile(
+          path.join(EXAMPLES_DIR, filename),
+          "utf-8"
+        );
+        const { title, scenario } = parseExampleMetadata(markdown);
+        return { id, filename, title, scenario };
+      })
+    );
+
+    res.json(examples);
+  } catch (err) {
+    const msg =
+      err instanceof Error ? err.message : "Failed to load examples.";
+    res.status(500).json({ error: msg });
+  }
+});
+
+app.get("/api/examples/:id", async (req: Request, res: Response) => {
+  const id = String(req.params.id);
+  if (!EXAMPLE_ID_RE.test(id)) {
+    res.status(400).json({ error: "Invalid example id." });
+    return;
+  }
+
+  try {
+    const entries = await fs.readdir(EXAMPLES_DIR);
+    const filename = entries.find((name) => {
+      const m = name.match(POSITIVE_FILE_RE);
+      return m && m[1] === id;
+    });
+    if (!filename) {
+      res.status(404).json({ error: "Example not found." });
+      return;
+    }
+    const markdown = await fs.readFile(
+      path.join(EXAMPLES_DIR, filename),
+      "utf-8"
+    );
+    const { title, scenario } = parseExampleMetadata(markdown);
+    const turns = parseExampleTurns(markdown);
+    res.json({ id, filename, title, scenario, turns });
+  } catch (err) {
+    const msg =
+      err instanceof Error ? err.message : "Failed to load example.";
+    res.status(500).json({ error: msg });
+  }
+});
 
 // ── Create a new session with student profile ────────────────────────
 

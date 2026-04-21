@@ -250,6 +250,124 @@ onboardingForm.addEventListener("submit", async (e) => {
   }
 });
 
+// ── Examples page ────────────────────────────────
+
+const examplesScreen = document.getElementById("examples");
+const viewExamplesBtn = document.getElementById("view-examples-btn");
+const examplesBackBtn = document.getElementById("examples-back-btn");
+const examplesListBtn = document.getElementById("examples-list-btn");
+const examplesGrid = document.getElementById("examples-grid");
+const exampleTitleEl = document.getElementById("example-title");
+const exampleScenarioEl = document.getElementById("example-scenario");
+const exampleTurnsEl = document.getElementById("example-turns");
+
+let examplesLoaded = false;
+
+viewExamplesBtn.addEventListener("click", async () => {
+  onboardingScreen.classList.remove("active");
+  examplesScreen.classList.remove("detail-view");
+  examplesScreen.classList.add("active");
+
+  if (examplesLoaded) return;
+
+  try {
+    const res = await fetch("/api/examples");
+    if (!res.ok) throw new Error("Failed to load examples.");
+    const items = await res.json();
+    renderExamplesList(items);
+    examplesLoaded = true;
+  } catch (err) {
+    examplesGrid.innerHTML = `<p class="examples-error">${err.message}</p>`;
+  }
+});
+
+function renderExamplesList(items) {
+  examplesGrid.innerHTML = "";
+  for (const item of items) {
+    const card = document.createElement("button");
+    card.type = "button";
+    card.className = "example-card";
+    card.dataset.id = item.id;
+
+    const title = document.createElement("h3");
+    title.className = "example-card-title";
+    title.textContent = item.title || item.id;
+
+    const scenario = document.createElement("p");
+    scenario.className = "example-card-scenario";
+    scenario.textContent = item.scenario || "";
+
+    const link = document.createElement("span");
+    link.className = "example-card-link";
+    link.textContent = "Read full example →";
+
+    card.appendChild(title);
+    if (item.scenario) card.appendChild(scenario);
+    card.appendChild(link);
+    examplesGrid.appendChild(card);
+  }
+}
+
+examplesGrid.addEventListener("click", async (e) => {
+  const card = e.target.closest(".example-card");
+  if (!card) return;
+  await openExample(card.dataset.id);
+});
+
+async function openExample(id) {
+  exampleTitleEl.textContent = "";
+  exampleScenarioEl.textContent = "";
+  exampleTurnsEl.innerHTML = '<p class="examples-loading">Loading...</p>';
+  examplesScreen.classList.add("detail-view");
+  const body = examplesScreen.querySelector(".examples-body");
+  if (body) body.scrollTop = 0;
+
+  try {
+    const res = await fetch(`/api/examples/${encodeURIComponent(id)}`);
+    if (!res.ok) throw new Error("Failed to load example.");
+    const data = await res.json();
+    exampleTitleEl.textContent = data.title || "";
+    exampleScenarioEl.textContent = data.scenario || "";
+    renderExampleTurns(data.turns || []);
+  } catch (err) {
+    exampleTurnsEl.innerHTML = `<p class="examples-error">${err.message}</p>`;
+  }
+}
+
+function renderExampleTurns(turns) {
+  exampleTurnsEl.innerHTML = "";
+  if (!turns.length) {
+    exampleTurnsEl.innerHTML =
+      '<p class="examples-error">No conversation content to display.</p>';
+    return;
+  }
+  for (const turn of turns) {
+    const wrapper = document.createElement("div");
+    wrapper.className = `message ${turn.role === "user" ? "user" : "assistant"}`;
+
+    const content = document.createElement("div");
+    content.className = "message-content";
+    if (turn.role === "assistant") {
+      content.innerHTML = renderMarkdown(turn.content);
+    } else {
+      content.textContent = turn.content;
+    }
+
+    wrapper.appendChild(content);
+    exampleTurnsEl.appendChild(wrapper);
+  }
+}
+
+examplesBackBtn.addEventListener("click", () => {
+  examplesScreen.classList.remove("active");
+  examplesScreen.classList.remove("detail-view");
+  onboardingScreen.classList.add("active");
+});
+
+examplesListBtn.addEventListener("click", () => {
+  examplesScreen.classList.remove("detail-view");
+});
+
 // ── Chat ─────────────────────────────────────────
 
 chatForm.addEventListener("submit", (e) => {

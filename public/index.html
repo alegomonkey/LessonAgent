@@ -19,6 +19,10 @@
         Tell us a bit about yourself to get started.
       </p>
 
+      <button type="button" id="view-examples-btn" class="examples-link">
+        See example conversations &rarr;
+      </button>
+
       <form id="onboarding-form">
         <div class="form-group">
           <label for="name">Your name</label>
@@ -141,6 +145,32 @@
         </svg>
       </button>
     </form>
+  </div>
+
+  <!-- Examples screen -->
+  <div id="examples" class="screen">
+    <header class="examples-header">
+      <button id="examples-back-btn" class="btn-ghost">&larr; Back</button>
+      <span class="header-title">Example Conversations</span>
+      <span class="examples-header-spacer" aria-hidden="true"></span>
+    </header>
+    <div class="examples-body">
+      <div id="examples-list" class="examples-list">
+        <p class="examples-intro">
+          Here's how other students have worked with AssignmentAlly to augment their assignments.
+          Each example shows the full conversation, rubric compliance proof, and final proposal.
+        </p>
+        <div id="examples-grid" class="examples-grid"></div>
+      </div>
+      <section id="examples-detail" class="examples-detail">
+        <button id="examples-list-btn" class="btn-ghost examples-detail-back">&larr; All examples</button>
+        <div class="example-intro">
+          <h2 id="example-title" class="example-title"></h2>
+          <p id="example-scenario" class="example-scenario"></p>
+        </div>
+        <div id="example-turns" class="example-turns"></div>
+      </section>
+    </div>
   </div>
 
   <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
