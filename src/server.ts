@@ -79,7 +79,7 @@ function describeToolUse(block: {
     if (skill === "proposal-builder") return "Building proposal...";
     // Internal skills — do not announce to the user.
     if (skill === "pipeline-gate") return undefined;
-    return skill ? `Running ${skill}...` : "Running skill...";
+    return "Working on it...";
   }
 
   if (name === "Agent" || name === "Task") {
@@ -94,8 +94,8 @@ function describeToolUse(block: {
 
   if (name === "Read") {
     const p = (input.file_path ?? "") as string;
-    if (/\/skills\/.*\/SKILL\.md$/i.test(p)) return "Loading skill instructions...";
-    if (/\/skills\//i.test(p)) return "Reading skill reference...";
+    if (/\/skills\/.*\/SKILL\.md$/i.test(p)) return "Getting started...";
+    if (/\/skills\//i.test(p)) return "Reviewing reference material...";
     if (/\/syllabi\//i.test(p)) return "Reading syllabus...";
     if (/\/industry\//i.test(p)) return "Reading industry data...";
     if (/\/users\//i.test(p)) return "Reading student profile...";
