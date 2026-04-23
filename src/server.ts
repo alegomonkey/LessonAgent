@@ -9,7 +9,13 @@ import multer from "multer";
 import { PDFParse } from "pdf-parse";
 import { query } from "@anthropic-ai/claude-agent-sdk";
 import { buildOptions } from "./config.js";
-import type { ChatSession, PipelineStep, StudentGoalProfile, StudentProfile } from "./types.js";
+import type {
+  ChatSession,
+  PipelineStep,
+  SessionExport,
+  StudentGoalProfile,
+  StudentProfile,
+} from "./types.js";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const app = express();
@@ -398,6 +404,49 @@ app.post("/api/session", (req: Request, res: Response) => {
   });
 });
 
+// ── Import a saved profile to skip the intro survey ─────────────────
+
+app.post("/api/session/import", (req: Request, res: Response) => {
+  const body = req.body as Partial<SessionExport> | undefined;
+  const student = body?.student as Partial<StudentProfile> | undefined;
+
+  if (!student) {
+    res.status(400).json({ error: "Missing student profile in uploaded file." });
+    return;
+  }
+  const { name, major, year, careerGoals, course } = student;
+  if (!name || !major || !year || !careerGoals || !course) {
+    res.status(400).json({
+      error:
+        "Uploaded profile is missing required fields (name, major, year, course, careerGoals).",
+    });
+    return;
+  }
+
+  if (body?.version && body.version !== 1) {
+    res.status(400).json({
+      error: `Unsupported profile version ${body.version}. Please export a fresh profile.`,
+    });
+    return;
+  }
+
+  const session: ChatSession = {
+    id: randomUUID(),
+    student: { name, major, year, careerGoals, course },
+    pipelineStep: "ready",
+    createdAt: Date.now(),
+    ...(body?.goalProfile ? { goalProfile: body.goalProfile } : {}),
+  };
+
+  sessions.set(session.id, session);
+  res.json({
+    sessionId: session.id,
+    pipelineStep: session.pipelineStep,
+    awaitingInfo: session.awaitingInfo ?? null,
+    hasGoalProfile: !!session.goalProfile,
+  });
+});
+
 // ── Chat endpoint — streams agent responses via SSE ──────────────────
 
 app.post("/api/chat", async (req: Request, res: Response) => {
@@ -718,111 +767,124 @@ function extractGoalProfile(text: string): StudentGoalProfile | null {
   }
 }
 
-function goalProfileToMarkdown(
-  profile: StudentGoalProfile,
-  student: StudentProfile
+function sessionExportToMarkdown(
+  student: StudentProfile,
+  profile: StudentGoalProfile | undefined,
+  exportedAt: string
 ): string {
   const lines: string[] = [];
 
-  lines.push(`# Goal Profile: ${student.name}`);
+  lines.push(`# Profile: ${student.name}`);
+  lines.push("");
+
+  // Student Profile (always present)
+  lines.push("## Student Profile");
   lines.push("");
   lines.push(`**Major:** ${student.major}`);
   lines.push(`**Year:** ${student.year}`);
   lines.push(`**Course:** ${student.course}`);
-  lines.push(`**Created:** ${profile.createdAt}`);
+  lines.push(`**Career goals:** ${student.careerGoals}`);
   lines.push("");
 
-  // Career Goals
-  lines.push("## Career Goals");
-  lines.push("");
-  lines.push(`**Primary goal:** ${profile.careerGoals.primary}`);
-  if (profile.careerGoals.secondary) {
-    lines.push(`**Secondary goal:** ${profile.careerGoals.secondary}`);
-  }
-  if (profile.careerGoals.targetEmployers?.length) {
-    lines.push(
-      `**Target employers:** ${profile.careerGoals.targetEmployers.join(", ")}`
-    );
-  }
-  if (profile.careerGoals.industryPreference) {
-    lines.push(
-      `**Industry preference:** ${profile.careerGoals.industryPreference}`
-    );
-  }
-  if (profile.careerGoals.timeline) {
-    lines.push(`**Timeline:** ${profile.careerGoals.timeline}`);
-  }
-  lines.push("");
-
-  // Motivations
-  if (profile.motivations) {
-    lines.push("## Motivations");
+  // Goal profile sections (only if present)
+  if (profile) {
+    lines.push(`**Goal profile created:** ${profile.createdAt}`);
     lines.push("");
-    if (profile.motivations.whatExcitesYou) {
+
+    lines.push("## Career Goals");
+    lines.push("");
+    lines.push(`**Primary goal:** ${profile.careerGoals.primary}`);
+    if (profile.careerGoals.secondary) {
+      lines.push(`**Secondary goal:** ${profile.careerGoals.secondary}`);
+    }
+    if (profile.careerGoals.targetEmployers?.length) {
       lines.push(
-        `**What excites you:** ${profile.motivations.whatExcitesYou}`
+        `**Target employers:** ${profile.careerGoals.targetEmployers.join(", ")}`
       );
     }
-    if (profile.motivations.whyThisPath) {
-      lines.push(`**Why this path:** ${profile.motivations.whyThisPath}`);
-    }
-    if (profile.motivations.problemsToSolve) {
+    if (profile.careerGoals.industryPreference) {
       lines.push(
-        `**Problems to solve:** ${profile.motivations.problemsToSolve}`
+        `**Industry preference:** ${profile.careerGoals.industryPreference}`
       );
     }
+    if (profile.careerGoals.timeline) {
+      lines.push(`**Timeline:** ${profile.careerGoals.timeline}`);
+    }
     lines.push("");
-  }
 
-  // Personal Context
-  if (profile.personalContext) {
-    lines.push("## Personal Context");
-    lines.push("");
-    if (profile.personalContext.workStatus) {
-      lines.push(`**Work status:** ${profile.personalContext.workStatus}`);
+    if (profile.motivations) {
+      lines.push("## Motivations");
+      lines.push("");
+      if (profile.motivations.whatExcitesYou) {
+        lines.push(
+          `**What excites you:** ${profile.motivations.whatExcitesYou}`
+        );
+      }
+      if (profile.motivations.whyThisPath) {
+        lines.push(`**Why this path:** ${profile.motivations.whyThisPath}`);
+      }
+      if (profile.motivations.problemsToSolve) {
+        lines.push(
+          `**Problems to solve:** ${profile.motivations.problemsToSolve}`
+        );
+      }
+      lines.push("");
     }
-    if (profile.personalContext.relevantExperience) {
-      lines.push(
-        `**Relevant experience:** ${profile.personalContext.relevantExperience}`
-      );
-    }
-    if (profile.personalContext.constraints) {
-      lines.push(`**Constraints:** ${profile.personalContext.constraints}`);
-    }
-    if (profile.personalContext.perspective) {
-      lines.push(`**Perspective:** ${profile.personalContext.perspective}`);
-    }
-    lines.push("");
-  }
 
-  // Skills Self-Assessment
-  if (
-    profile.skillsSelfAssessment &&
-    Object.keys(profile.skillsSelfAssessment).length > 0
-  ) {
-    lines.push("## Skills Self-Assessment");
-    lines.push("");
-    lines.push("| Skill | Level |");
-    lines.push("|-------|-------|");
-    for (const [skill, level] of Object.entries(
-      profile.skillsSelfAssessment
-    )) {
-      const label = skill.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-      lines.push(`| ${label} | ${level} |`);
+    if (profile.personalContext) {
+      lines.push("## Personal Context");
+      lines.push("");
+      if (profile.personalContext.workStatus) {
+        lines.push(`**Work status:** ${profile.personalContext.workStatus}`);
+      }
+      if (profile.personalContext.relevantExperience) {
+        lines.push(
+          `**Relevant experience:** ${profile.personalContext.relevantExperience}`
+        );
+      }
+      if (profile.personalContext.constraints) {
+        lines.push(`**Constraints:** ${profile.personalContext.constraints}`);
+      }
+      if (profile.personalContext.perspective) {
+        lines.push(`**Perspective:** ${profile.personalContext.perspective}`);
+      }
+      lines.push("");
     }
-    lines.push("");
+
+    if (
+      profile.skillsSelfAssessment &&
+      Object.keys(profile.skillsSelfAssessment).length > 0
+    ) {
+      lines.push("## Skills Self-Assessment");
+      lines.push("");
+      lines.push("| Skill | Level |");
+      lines.push("|-------|-------|");
+      for (const [skill, level] of Object.entries(
+        profile.skillsSelfAssessment
+      )) {
+        const label = skill.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+        lines.push(`| ${label} | ${level} |`);
+      }
+      lines.push("");
+    }
   }
 
   lines.push("---");
-  lines.push(`*Generated by AssignmentAlly on ${profile.updatedAt}*`);
+  lines.push(`*Generated by AssignmentAlly on ${exportedAt}*`);
+  lines.push("");
+  lines.push(
+    "*Upload the JSON version of this file on the start page to resume without re-taking the survey.*"
+  );
 
   return lines.join("\n");
 }
 
-// ── Goal profile download endpoint ──────────────────────────────────
+// ── Profile download endpoint ───────────────────────────────────────
+// Returns the combined session export: the intro-survey StudentProfile
+// (always) plus the richer StudentGoalProfile (when one has been built).
 
 app.get(
-  "/api/session/:sessionId/goal-profile",
+  "/api/session/:sessionId/profile",
   (req: Request, res: Response) => {
     const sid = String(req.params.sessionId);
     const session = sessions.get(sid);
@@ -830,29 +892,36 @@ app.get(
       res.status(404).json({ error: "Session not found." });
       return;
     }
-    if (!session.goalProfile) {
-      res.status(404).json({ error: "No goal profile available yet." });
-      return;
-    }
 
     const format = String(req.query.format ?? "json");
     const safeName = session.student.name.replace(/[^a-zA-Z0-9-_ ]/g, "").replace(/\s+/g, "-");
+    const exportedAt = new Date().toISOString();
 
     if (format === "markdown") {
-      const md = goalProfileToMarkdown(session.goalProfile, session.student);
+      const md = sessionExportToMarkdown(
+        session.student,
+        session.goalProfile,
+        exportedAt
+      );
       res.setHeader("Content-Type", "text/markdown; charset=utf-8");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="${safeName}-goal-profile.md"`
+        `attachment; filename="${safeName}-profile.md"`
       );
       res.send(md);
     } else {
+      const payload: SessionExport = {
+        version: 1,
+        exportedAt,
+        student: session.student,
+        ...(session.goalProfile ? { goalProfile: session.goalProfile } : {}),
+      };
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       res.setHeader(
         "Content-Disposition",
-        `attachment; filename="${safeName}-goal-profile.json"`
+        `attachment; filename="${safeName}-profile.json"`
       );
-      res.json(session.goalProfile);
+      res.json(payload);
     }
   }
 );

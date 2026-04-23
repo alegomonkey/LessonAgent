@@ -37,6 +37,13 @@ export interface StudentGoalProfile {
   sectionsCompleted: string[];
 }
 
+export interface SessionExport {
+  version: 1;
+  exportedAt: string;
+  student: StudentProfile;
+  goalProfile?: StudentGoalProfile;
+}
+
 export type PipelineStep = "ready" | "analyzed" | "aligned" | "proposed";
 
 export interface ChatSession {

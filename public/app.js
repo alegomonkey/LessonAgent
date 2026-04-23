@@ -28,6 +28,8 @@ const btnBrowse = document.getElementById("btn-browse");
 const profileDownload = document.getElementById("profile-download");
 const downloadProfileBtn = document.getElementById("download-profile-btn");
 const downloadDropdown = document.getElementById("download-dropdown");
+const uploadProfileLink = document.getElementById("upload-profile-link");
+const profileFileInput = document.getElementById("profile-file-input");
 
 // ── Pipeline step helpers ────────────────────────
 
@@ -224,29 +226,75 @@ onboardingForm.addEventListener("submit", async (e) => {
     const result = await res.json();
     sessionId = result.sessionId;
     pipelineStep = result.pipelineStep || "ready";
-
-    // Set welcome message — re-query by ID because the "New session" handler
-    // replaces #welcome-message via messagesContainer.innerHTML, leaving the
-    // const captured at load pointing at a detached node.
-    const welcomeEl = document.getElementById("welcome-message");
-    welcomeEl.innerHTML = renderMarkdown(
-      `Hi ${studentName}! I'm **AssignmentAlly**. I help you build augmented, career-connected versions of your assignments and draft formal proposals you can present to your professor.\n\n` +
-        `Here's how we'll work together:\n\n` +
-        `1. **Analyze** your assignment to understand what it requires\n` +
-        `2. **Align** it with your career goals to find augmentation opportunities\n` +
-        `3. **Build** a formal proposal with rubric compliance proof\n\n` +
-        `Start by clicking **Analyze Assignment** above to upload your syllabus or assignment, or just describe it in the chat box.`
-    );
-
-    // Switch to chat
-    onboardingScreen.classList.remove("active");
-    chatScreen.classList.add("active");
-    updateButtonStates();
-    chatInput.focus();
+    enterChatScreen({ returning: false });
   } catch (err) {
     alert(err.message);
     btn.disabled = false;
     btn.textContent = "Get Started";
+  }
+});
+
+// Shared transition used by both the intro-survey path and the profile-upload
+// path. Assumes sessionId, studentName, and pipelineStep have been set.
+function enterChatScreen({ returning }) {
+  // Re-query by ID because the "New session" handler replaces #welcome-message
+  // via messagesContainer.innerHTML, leaving any earlier-captured reference
+  // pointing at a detached node.
+  const welcomeEl = document.getElementById("welcome-message");
+  const intro = returning
+    ? `Welcome back, ${studentName}! I loaded your saved profile. We can pick up wherever you left off — share the assignment you're working on, or click **Analyze Assignment** above to start a new one.`
+    : `Hi ${studentName}! I'm **AssignmentAlly**. I help you build augmented, career-connected versions of your assignments and draft formal proposals you can present to your professor.\n\n` +
+      `Here's how we'll work together:\n\n` +
+      `1. **Analyze** your assignment to understand what it requires\n` +
+      `2. **Align** it with your career goals to find augmentation opportunities\n` +
+      `3. **Build** a formal proposal with rubric compliance proof\n\n` +
+      `Start by clicking **Analyze Assignment** above to upload your syllabus or assignment, or just describe it in the chat box.`;
+  welcomeEl.innerHTML = renderMarkdown(intro);
+
+  onboardingScreen.classList.remove("active");
+  chatScreen.classList.add("active");
+  updateButtonStates();
+  chatInput.focus();
+}
+
+// ── Profile upload (skip the intro survey) ──────────────────────────
+
+uploadProfileLink.addEventListener("click", () => profileFileInput.click());
+
+profileFileInput.addEventListener("change", async (e) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
+
+  try {
+    const text = await file.text();
+    let payload;
+    try {
+      payload = JSON.parse(text);
+    } catch {
+      throw new Error("That file isn't valid JSON. Please upload a profile exported from AssignmentAlly.");
+    }
+
+    const res = await fetch("/api/session/import", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload),
+    });
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.error || "Couldn't use this profile file.");
+    }
+
+    const result = await res.json();
+    sessionId = result.sessionId;
+    pipelineStep = result.pipelineStep || "ready";
+    studentName = payload.student?.name || "";
+    hasGoalProfile = !!result.hasGoalProfile;
+    enterChatScreen({ returning: true });
+  } catch (err) {
+    alert(err.message);
+  } finally {
+    // Clear so picking the same file again re-fires 'change'.
+    profileFileInput.value = "";
   }
 });
 
@@ -450,7 +498,6 @@ newSessionBtn.addEventListener("click", () => {
   pendingFileText = null;
   pendingFileName = null;
   hasGoalProfile = false;
-  profileDownload.style.display = "none";
   downloadDropdown.classList.remove("download-dropdown--visible");
   hideUploadArea();
   onboardingForm.reset();
@@ -691,10 +738,8 @@ async function sendMessage() {
               awaitingInfo = event.awaitingInfo;
             }
             updateButtonStates();
-            // Show profile download button if profile is available
             if (event.hasGoalProfile) {
               hasGoalProfile = true;
-              profileDownload.style.display = "";
             }
             // Strip goal profile JSON marker block from rendered content
             fullText = stripProfileMarker(fullText);
@@ -916,7 +961,7 @@ downloadDropdown.addEventListener("click", async (e) => {
 
   try {
     const res = await fetch(
-      `/api/session/${sessionId}/goal-profile?format=${format}`
+      `/api/session/${sessionId}/profile?format=${format}`
     );
     if (!res.ok) {
       const err = await res.json();
@@ -929,7 +974,7 @@ downloadDropdown.addEventListener("click", async (e) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${safeName}-goal-profile.${ext}`;
+    a.download = `${safeName}-profile.${ext}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
