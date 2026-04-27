@@ -1,0 +1,127 @@
+[Student context — use this to personalize your responses]
+Name: Bonus Man
+Major: Biology
+Year: Sophomore
+Career goals: Software & Tech, Law & Policy, Still exploring
+Course they want to work on: BIO 326 - Entomology
+
+BIO316 Assignment: Primary Literature Analysis & Experimental Design
+Assignment Title:
+Interpreting Primary Research in Molecular & Cellular Biology
+
+Overview
+In this assignment, you will critically analyze a peer‑reviewed research article in molecular or cellular biology and design a follow‑up experiment that builds on the study’s findings. This assignment assesses your ability to interpret data, evaluate methodology, and apply scientific reasoning to propose novel research.
+
+Learning Objectives
+By completing this assignment, you will be able to:
+
+Interpret and evaluate experimental data from primary scientific literature
+
+Identify strengths and limitations in experimental design
+
+Synthesize findings into a coherent scientific narrative
+
+Propose a logical, feasible follow‑up experiment
+
+Communicate scientific ideas clearly in written form
+
+Assignment Instructions
+Part 1 — Article Selection (10%)
+Choose one primary research article published within the last 5 years in one of the following journals:
+
+Cell
+
+Nature
+
+Science
+
+Journal of Cell Biology
+
+Molecular Cell
+
+PNAS
+
+The article must include original data (not a review, commentary, or perspective).
+
+Submit the article PDF with your assignment.
+
+Part 2 — Article Summary (30%)
+Write a 1–2 page summary addressing:
+
+Biological question:  
+What problem or hypothesis is the study addressing?
+
+Background context:  
+What is already known? Why is this question important?
+
+Experimental approach:  
+Identify the major techniques used (e.g., Western blotting, RNA‑seq, CRISPR, microscopy).
+
+Key findings:  
+Summarize the major results in your own words.
+
+Conclusions:  
+What do the authors claim, and how do the data support these claims?
+
+Part 3 — Data Interpretation (30%)
+Choose two figures from the article and analyze them in detail:
+
+For each figure:
+
+Describe the experimental setup
+
+Identify independent and dependent variables
+
+Explain the controls used
+
+Interpret the data (what does the figure show?)
+
+Evaluate whether the authors’ interpretation is justified
+
+Your analysis should demonstrate deep engagement with the data.
+
+Part 4 — Proposed Follow‑Up Experiment (30%)
+Design a follow‑up experiment that logically extends the study.
+
+Your proposal must include:
+
+Rationale:  
+Why is this experiment the next logical step?
+
+Hypothesis:  
+A clear, testable statement.
+
+Experimental design:
+
+Methods and techniques
+
+Controls
+
+Sample size or replicates
+
+Variables
+
+Predicted results:  
+What outcomes do you expect?
+
+Interpretation:  
+How would each possible result support or refute your hypothesis?
+
+Potential limitations:  
+Identify at least one limitation and how you would address it.
+
+---
+
+looks good to me
+
+---
+
+lets do just 1
+
+---
+
+Yes, opportunity I
+
+---
+
+dr. wimble and 5/23
