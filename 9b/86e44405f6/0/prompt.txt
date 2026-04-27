@@ -1,0 +1,9 @@
+lets work through improving the proposal-writer.md agent. I want to improve the description and prompt with more descriptive personality and functionality.
+
+---
+
+I am concerned about the agents behavior
+
+---
+
+Sometimes there may not be a rubric, or the rubric is infered from the requirements. ensure that this doesn't slow down or prevent this agent from running.
