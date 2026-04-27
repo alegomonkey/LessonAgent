@@ -92,6 +92,7 @@
         <span class="header-title">AssignmentAlly</span>
       </div>
       <div class="header-right">
+        <button id="metrics-toggle-btn" class="btn-ghost metrics-toggle-btn" title="Show proposal metrics" aria-pressed="false" hidden>Metrics</button>
         <div class="profile-download" id="profile-download">
           <button id="download-profile-btn" class="btn-ghost" title="Download your profile">Profile</button>
           <div class="download-dropdown" id="download-dropdown">
@@ -103,53 +104,91 @@
       </div>
     </header>
 
-    <div id="messages" class="messages">
-      <div class="message assistant">
-        <div class="message-content" id="welcome-message"></div>
+    <div class="chat-body">
+      <div class="chat-main">
+        <div id="messages" class="messages">
+          <div class="message assistant">
+            <div class="message-content" id="welcome-message"></div>
+          </div>
+        </div>
+
+        <div class="quick-actions" id="quick-actions">
+          <button class="action-chip action-chip--current" data-step="analyze"
+            data-prompt="I want to analyze an assignment. I&#x2019;ve shared the relevant course material &#x2014; it may be a full syllabus or a specific assignment prompt. Figure out which, then guide me from there.">
+            <span class="step-indicator">1</span>
+            <span class="step-label">Analyze Assignment</span>
+          </button>
+          <div class="step-connector" id="connector-1"></div>
+          <button class="action-chip action-chip--locked" data-step="align" disabled
+            title="Complete assignment analysis first"
+            data-prompt="Now align this assignment with my career goals and suggest augmentation opportunities.">
+            <span class="step-indicator">2</span>
+            <span class="step-label">Align Career Goals</span>
+          </button>
+          <div class="step-connector" id="connector-2"></div>
+          <button class="action-chip action-chip--locked" data-step="build" disabled
+            title="Complete analysis and alignment first"
+            data-prompt="Build a formal proposal for the augmented assignment that I can present to my professor.">
+            <span class="step-indicator">3</span>
+            <span class="step-label">Build Proposal</span>
+          </button>
+        </div>
+
+        <div class="upload-area" id="upload-area">
+          <div class="upload-dropzone" id="upload-dropzone">
+            <div class="upload-icon">&#x1F4C4;</div>
+            <p class="upload-title">Drop your syllabus or assignment here</p>
+            <button type="button" class="btn-browse" id="btn-browse">Browse files</button>
+            <p class="upload-hint">Either one works &mdash; you don&#x2019;t need both. Accepts PDF, TXT, MD, or just describe it in the chat box below.</p>
+          </div>
+          <input type="file" id="file-upload" accept=".pdf,.md,.txt" style="display:none">
+        </div>
+
+        <form id="chat-form" class="chat-input-area">
+          <textarea id="chat-input" placeholder="Type your message..." rows="1"></textarea>
+          <button type="submit" class="btn-send" id="send-btn" title="Send">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="22" y1="2" x2="11" y2="13"></line>
+              <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+            </svg>
+          </button>
+        </form>
       </div>
-    </div>
 
-    <div class="quick-actions" id="quick-actions">
-      <button class="action-chip action-chip--current" data-step="analyze"
-        data-prompt="I want to analyze an assignment. I&#x2019;ve shared the relevant course material &#x2014; it may be a full syllabus or a specific assignment prompt. Figure out which, then guide me from there.">
-        <span class="step-indicator">1</span>
-        <span class="step-label">Analyze Assignment</span>
-      </button>
-      <div class="step-connector" id="connector-1"></div>
-      <button class="action-chip action-chip--locked" data-step="align" disabled
-        title="Complete assignment analysis first"
-        data-prompt="Now align this assignment with my career goals and suggest augmentation opportunities.">
-        <span class="step-indicator">2</span>
-        <span class="step-label">Align Career Goals</span>
-      </button>
-      <div class="step-connector" id="connector-2"></div>
-      <button class="action-chip action-chip--locked" data-step="build" disabled
-        title="Complete analysis and alignment first"
-        data-prompt="Build a formal proposal for the augmented assignment that I can present to my professor.">
-        <span class="step-indicator">3</span>
-        <span class="step-label">Build Proposal</span>
-      </button>
-    </div>
+      <aside id="metrics-panel" class="metrics-panel" aria-label="Proposal metrics" hidden>
+        <div class="metrics-header">
+          <h2 class="metrics-title">Proposal Metrics</h2>
+          <button id="metrics-close-btn" class="metrics-close-btn" type="button" aria-label="Close metrics panel">&times;</button>
+        </div>
+        <p class="metrics-subtitle">Updated after each proposal revision.</p>
 
-    <div class="upload-area" id="upload-area">
-      <div class="upload-dropzone" id="upload-dropzone">
-        <div class="upload-icon">&#x1F4C4;</div>
-        <p class="upload-title">Drop your syllabus or assignment here</p>
-        <button type="button" class="btn-browse" id="btn-browse">Browse files</button>
-        <p class="upload-hint">Either one works &mdash; you don&#x2019;t need both. Accepts PDF, TXT, MD, or just describe it in the chat box below.</p>
-      </div>
-      <input type="file" id="file-upload" accept=".pdf,.md,.txt" style="display:none">
-    </div>
+        <section class="metric metric--score" data-key="assignmentAlignment">
+          <div class="metric-row">
+            <span class="metric-label">Assignment / Rubric Alignment</span>
+            <span class="metric-score">&mdash;</span>
+          </div>
+          <div class="metric-bar"><div class="metric-bar-fill"></div></div>
+          <p class="metric-reason"></p>
+        </section>
 
-    <form id="chat-form" class="chat-input-area">
-      <textarea id="chat-input" placeholder="Type your message..." rows="1"></textarea>
-      <button type="submit" class="btn-send" id="send-btn" title="Send">
-        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <line x1="22" y1="2" x2="11" y2="13"></line>
-          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
-        </svg>
-      </button>
-    </form>
+        <section class="metric metric--score" data-key="goalAlignment">
+          <div class="metric-row">
+            <span class="metric-label">Goal &amp; Career Alignment</span>
+            <span class="metric-score">&mdash;</span>
+          </div>
+          <div class="metric-bar"><div class="metric-bar-fill"></div></div>
+          <p class="metric-reason"></p>
+        </section>
+
+        <section class="metric metric--concerns" data-key="professorAcceptance">
+          <div class="metric-row">
+            <span class="metric-label">Professor Acceptance</span>
+          </div>
+          <ul class="metric-concerns"></ul>
+          <p class="metric-no-concerns" hidden>No concerns flagged.</p>
+        </section>
+      </aside>
+    </div>
   </div>
 
   <!-- Examples screen -->

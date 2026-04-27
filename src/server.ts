@@ -12,6 +12,7 @@ import { buildOptions } from "./config.js";
 import type {
   ChatSession,
   PipelineStep,
+  ProposalMetrics,
   SessionExport,
   StudentGoalProfile,
   StudentProfile,
@@ -602,6 +603,17 @@ app.post("/api/chat", async (req: Request, res: Response) => {
           session.goalProfile = profileJson;
         }
 
+        // Replace-silently: a fresh PROPOSAL_METRICS marker overwrites the
+        // session's metrics. Absent marker leaves prior metrics in place so a
+        // tangential follow-up turn doesn't blank the panel.
+        const metrics = extractProposalMetrics(accumulatedText);
+        if (metrics) {
+          session.proposalMetrics = {
+            ...metrics,
+            updatedAt: new Date().toISOString(),
+          };
+        }
+
         // Prefer the pipeline-gate skill's explicit verdict over the
         // trailing-question heuristic. The gate is the agent's own judgment
         // about whether its phase work is actually done for this turn.
@@ -631,6 +643,7 @@ app.post("/api/chat", async (req: Request, res: Response) => {
             pipelineStep: session.pipelineStep,
             awaitingInfo: session.awaitingInfo ?? null,
             hasGoalProfile: !!session.goalProfile,
+            proposalMetrics: session.proposalMetrics ?? null,
           })}\n\n`
         );
       }
@@ -702,6 +715,7 @@ function endsWithQuestion(text: string): boolean {
       ""
     )
     .replace(/<!-- PIPELINE_GATE[\s\S]*?-->/g, "")
+    .replace(/<!-- PROPOSAL_METRICS[\s\S]*?-->/g, "")
     // Strip trailing whitespace and markdown punctuation (e.g. "?**", "?*_").
     .replace(/[\s*_`~]+$/, "");
   return cleaned.endsWith("?");
@@ -744,6 +758,77 @@ function extractPipelineGate(
   } catch {
     return null;
   }
+}
+
+// ── Proposal metrics extraction ─────────────────────────────────────
+// The proposal-builder skill emits a single-line JSON payload inside an HTML
+// comment, e.g.:
+//   <!-- PROPOSAL_METRICS {"assignmentAlignment":{...},...} -->
+// (whitespace and newlines inside the comment are tolerated). Multiple
+// markers in one turn are tolerated — we use the last one.
+const PROPOSAL_METRICS_RE = /<!-- PROPOSAL_METRICS\s*([\s\S]*?)\s*-->/g;
+
+function extractProposalMetrics(
+  text: string
+): Omit<ProposalMetrics, "updatedAt"> | null {
+  const matches = [...text.matchAll(PROPOSAL_METRICS_RE)];
+  if (matches.length === 0) return null;
+  const last = matches[matches.length - 1];
+  try {
+    const parsed = JSON.parse(last[1]) as {
+      assignmentAlignment?: { score?: unknown; reason?: unknown };
+      goalAlignment?: { score?: unknown; reason?: unknown };
+      professorAcceptance?: {
+        concerns?: Array<{ severity?: unknown; issue?: unknown }>;
+      };
+    };
+
+    const aa = parsed.assignmentAlignment;
+    const ga = parsed.goalAlignment;
+    const pa = parsed.professorAcceptance;
+    if (
+      !aa ||
+      typeof aa.score !== "number" ||
+      typeof aa.reason !== "string" ||
+      !ga ||
+      typeof ga.score !== "number" ||
+      typeof ga.reason !== "string" ||
+      !pa ||
+      !Array.isArray(pa.concerns)
+    ) {
+      return null;
+    }
+
+    const concerns: ProposalMetrics["professorAcceptance"]["concerns"] = [];
+    for (const c of pa.concerns) {
+      if (
+        c &&
+        typeof c.issue === "string" &&
+        (c.severity === "low" || c.severity === "medium" || c.severity === "high")
+      ) {
+        concerns.push({ severity: c.severity, issue: c.issue });
+      }
+    }
+
+    return {
+      assignmentAlignment: {
+        score: clampScore(aa.score),
+        reason: aa.reason,
+      },
+      goalAlignment: {
+        score: clampScore(ga.score),
+        reason: ga.reason,
+      },
+      professorAcceptance: { concerns },
+    };
+  } catch {
+    return null;
+  }
+}
+
+function clampScore(n: number): number {
+  if (!Number.isFinite(n)) return 0;
+  return Math.max(0, Math.min(100, Math.round(n)));
 }
 
 // ── Goal profile extraction ─────────────────────────────────────────

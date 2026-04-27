@@ -9,6 +9,7 @@ let awaitingInfo = null; // "analyze" | "align" | "build" | null — pipeline-ga
 let pendingFileText = null;
 let pendingFileName = null;
 let hasGoalProfile = false;
+let proposalMetrics = null;
 
 // ── DOM refs ─────────────────────────────────────
 
@@ -30,6 +31,9 @@ const downloadProfileBtn = document.getElementById("download-profile-btn");
 const downloadDropdown = document.getElementById("download-dropdown");
 const uploadProfileLink = document.getElementById("upload-profile-link");
 const profileFileInput = document.getElementById("profile-file-input");
+const metricsPanel = document.getElementById("metrics-panel");
+const metricsToggleBtn = document.getElementById("metrics-toggle-btn");
+const metricsCloseBtn = document.getElementById("metrics-close-btn");
 
 // ── Pipeline step helpers ────────────────────────
 
@@ -498,6 +502,7 @@ newSessionBtn.addEventListener("click", () => {
   pendingFileText = null;
   pendingFileName = null;
   hasGoalProfile = false;
+  resetMetricsPanel();
   downloadDropdown.classList.remove("download-dropdown--visible");
   hideUploadArea();
   onboardingForm.reset();
@@ -741,6 +746,10 @@ async function sendMessage() {
             if (event.hasGoalProfile) {
               hasGoalProfile = true;
             }
+            if (event.proposalMetrics) {
+              proposalMetrics = event.proposalMetrics;
+              renderMetricsPanel();
+            }
             // Strip goal profile JSON marker block from rendered content
             fullText = stripProfileMarker(fullText);
             textEl.innerHTML = renderMarkdown(fullText);
@@ -928,17 +937,104 @@ const PROFILE_MARKER_RE =
 // The pipeline-gate skill emits an HTML-comment-wrapped JSON payload. Strip
 // it on every render so the student never sees the internal state marker.
 const PIPELINE_GATE_MARKER_RE = /<!-- PIPELINE_GATE[\s\S]*?-->/g;
+// Same idea for the proposal-builder's metrics marker.
+const PROPOSAL_METRICS_MARKER_RE = /<!-- PROPOSAL_METRICS[\s\S]*?-->/g;
 
 function stripInternalMarkers(text) {
   return text
     .replace(PROFILE_MARKER_RE, "")
     .replace(PIPELINE_GATE_MARKER_RE, "")
+    .replace(PROPOSAL_METRICS_MARKER_RE, "")
     .trim();
 }
 
 function stripProfileMarker(text) {
   return stripInternalMarkers(text);
 }
+
+// ── Metrics panel ────────────────────────────────
+
+function scoreBucket(score) {
+  if (score >= 80) return "high";
+  if (score >= 60) return "mid";
+  return "low";
+}
+
+function renderMetricsPanel() {
+  if (!proposalMetrics) return;
+
+  const wasHidden = metricsPanel.hidden;
+  metricsPanel.hidden = false;
+  metricsToggleBtn.hidden = false;
+  if (wasHidden) {
+    setMetricsPanelOpen(true);
+  }
+
+  for (const key of ["assignmentAlignment", "goalAlignment"]) {
+    const section = metricsPanel.querySelector(`.metric[data-key="${key}"]`);
+    if (!section) continue;
+    const data = proposalMetrics[key] ?? { score: 0, reason: "" };
+    const score = Math.max(0, Math.min(100, Math.round(data.score ?? 0)));
+    const bucket = scoreBucket(score);
+    const fill = section.querySelector(".metric-bar-fill");
+    fill.style.width = `${score}%`;
+    fill.classList.remove(
+      "metric-bar-fill--low",
+      "metric-bar-fill--mid",
+      "metric-bar-fill--high"
+    );
+    fill.classList.add(`metric-bar-fill--${bucket}`);
+    section.querySelector(".metric-score").textContent = String(score);
+    section.querySelector(".metric-reason").textContent = data.reason || "";
+  }
+
+  const concernsSection = metricsPanel.querySelector(
+    '.metric[data-key="professorAcceptance"]'
+  );
+  const list = concernsSection.querySelector(".metric-concerns");
+  const empty = concernsSection.querySelector(".metric-no-concerns");
+  list.innerHTML = "";
+  const concerns = proposalMetrics.professorAcceptance?.concerns ?? [];
+  if (concerns.length === 0) {
+    list.hidden = true;
+    empty.hidden = false;
+  } else {
+    empty.hidden = true;
+    list.hidden = false;
+    for (const c of concerns) {
+      const li = document.createElement("li");
+      const dot = document.createElement("span");
+      dot.className = `severity-dot severity-dot--${c.severity}`;
+      dot.setAttribute("aria-label", `${c.severity} severity`);
+      const text = document.createElement("span");
+      text.textContent = c.issue;
+      li.appendChild(dot);
+      li.appendChild(text);
+      list.appendChild(li);
+    }
+  }
+}
+
+function resetMetricsPanel() {
+  proposalMetrics = null;
+  metricsPanel.hidden = true;
+  setMetricsPanelOpen(false);
+  metricsToggleBtn.hidden = true;
+}
+
+function setMetricsPanelOpen(open) {
+  metricsPanel.classList.toggle("metrics-panel--open", open);
+  metricsToggleBtn.setAttribute("aria-pressed", open ? "true" : "false");
+  metricsToggleBtn.title = open ? "Hide proposal metrics" : "Show proposal metrics";
+}
+
+metricsToggleBtn.addEventListener("click", () => {
+  setMetricsPanelOpen(!metricsPanel.classList.contains("metrics-panel--open"));
+});
+
+metricsCloseBtn.addEventListener("click", () => {
+  setMetricsPanelOpen(false);
+});
 
 // Download button toggle
 downloadProfileBtn.addEventListener("click", (e) => {

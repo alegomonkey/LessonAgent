@@ -46,6 +46,17 @@ export interface SessionExport {
 
 export type PipelineStep = "ready" | "analyzed" | "aligned" | "proposed";
 
+export type ConcernSeverity = "low" | "medium" | "high";
+
+export interface ProposalMetrics {
+  assignmentAlignment: { score: number; reason: string };
+  goalAlignment: { score: number; reason: string };
+  professorAcceptance: {
+    concerns: Array<{ severity: ConcernSeverity; issue: string }>;
+  };
+  updatedAt: string;
+}
+
 export interface ChatSession {
   id: string;
   student: StudentProfile;
@@ -57,6 +68,10 @@ export interface ChatSession {
   // the UI to render the halfway "awaiting input" marker on the connector
   // after this phase's chip. Persists across tangential (no-gate) turns.
   awaitingInfo?: "analyze" | "align" | "build" | null;
+  // Latest metrics emitted by the proposal-builder skill. Replaced on every
+  // turn that emits a fresh PROPOSAL_METRICS marker; preserved across
+  // tangential turns that don't emit one.
+  proposalMetrics?: ProposalMetrics;
 }
 
 export interface SessionResult {

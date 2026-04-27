@@ -128,6 +128,78 @@ The proposal speaks FOR the student TO the professor:
 - **Proportional effort.** If the augmentation requires dramatically more work than the original, flag this to the student and suggest scaling back.
 - **No grade negotiation.** The proposal does not ask for extra credit, bonus points, or modified grading criteria. It asks to do the same assignment in an augmented format, graded on the same rubric.
 
+## Emit Proposal Metrics (Internal)
+
+After delivering a proposal — the very first one or any later revision — append a `PROPOSAL_METRICS` marker at the very end of your response, after `<!-- PIPELINE_GATE ... -->` if you also emit one. The server parses the marker and renders a metrics panel beside the chat. The student never sees the marker itself: the UI strips it before display.
+
+**Internal only.** Do not describe the marker, the panel, or the scoring process to the student in chat. Just write a normal proposal-presentation response and append the marker silently.
+
+### When to emit
+
+- The turn produced a brand-new formal proposal (Step 5 just completed).
+- The turn produced a revised proposal because the student asked for changes ("tighten the timeline," "make goal alignment stronger," "swap component X for Y," etc.).
+
+### When NOT to emit
+
+- The turn was confirming inputs or asking clarifying questions (Step 1) and no proposal was produced.
+- The turn was purely conversational — answering a definition question, talking through tradeoffs without rewriting the proposal.
+- The student asked you to revise but you have not yet produced the revised text.
+
+### Marker format
+
+Single-line valid JSON inside an HTML comment. Place it on its own lines after the proposal body:
+
+```
+<!-- PROPOSAL_METRICS
+{"assignmentAlignment":{"score":<0-100>,"reason":"<one sentence>"},"goalAlignment":{"score":<0-100>,"reason":"<one sentence>"},"professorAcceptance":{"concerns":[{"severity":"<low|medium|high>","issue":"<one sentence>"}]}}
+-->
+```
+
+### Field meanings and scoring guidance
+
+- **`assignmentAlignment.score`** — How thoroughly the augmented version covers every original rubric criterion and learning outcome.
+  - 90–100: every criterion is explicitly addressed in the compliance table; depth added without removal.
+  - 70–89: every criterion addressed but one or two only thinly; tighten the mapping.
+  - <70: a criterion is missing or weakened. **Do not deliver a proposal at this score** — return to Step 2 of the workflow and fix the gap first.
+
+- **`goalAlignment.score`** — How well the augmentation actually serves the student's stated career goals, motivations, and personality (from the goal profile and prior alignment work).
+  - 90–100: directly develops a primary-career competency with concrete artifacts the student could show an employer.
+  - 70–89: meaningful career relevance but the connection is general, not specific to the student's named target role / employer / industry.
+  - <70: augmentation is generic or only loosely tied to the student's goals. Discuss with the student before finalizing.
+
+- **`professorAcceptance.concerns`** — Concrete reasons a real professor might push back on this proposal. List the specific issue, not a generic worry. Empty array means no concerns.
+  - `severity: "low"` — a small adjustment would resolve it (e.g., add a midpoint check-in, clarify a deliverable format).
+  - `severity: "medium"` — meaningful risk that needs the student to plan a mitigation (external tool dependency, ambitious timeline, novel format the professor may be unfamiliar with).
+  - `severity: "high"` — likely blocker if not addressed (potential rubric gap, scope clearly exceeds proportional effort, request for grading changes). Treat high-severity as a signal to rework the proposal before delivering.
+
+Be honest. The metrics are most useful when they reflect the proposal's real weaknesses; inflated scores defeat the purpose of the panel.
+
+### Examples
+
+Fresh proposal, strong fit, two minor concerns:
+
+```
+<!-- PROPOSAL_METRICS
+{"assignmentAlignment":{"score":95,"reason":"All six rubric criteria addressed; depth added without removing requirements."},"goalAlignment":{"score":82,"reason":"Strong fit with primary career goal (Controls Engineer); secondary goal less directly served."},"professorAcceptance":{"concerns":[{"severity":"low","issue":"Augmented timeline is tight against the original two-week window — recommend a midpoint check-in."},{"severity":"medium","issue":"PLC simulator dependency may need IT approval; frame as a request rather than a fait accompli."}]}}
+-->
+```
+
+Revised proposal where the student asked you to strengthen goal alignment:
+
+```
+<!-- PROPOSAL_METRICS
+{"assignmentAlignment":{"score":94,"reason":"Rubric coverage unchanged from prior revision."},"goalAlignment":{"score":91,"reason":"Added an industry-specific deliverable (PLC ladder logic spec) that maps directly to target Controls Engineer role."},"professorAcceptance":{"concerns":[{"severity":"low","issue":"Augmented timeline still tight — keep the midpoint check-in."}]}}
+-->
+```
+
+Proposal with no concerns flagged:
+
+```
+<!-- PROPOSAL_METRICS
+{"assignmentAlignment":{"score":92,"reason":"All criteria explicitly mapped."},"goalAlignment":{"score":85,"reason":"Develops two named career competencies with portfolio artifacts."},"professorAcceptance":{"concerns":[]}}
+-->
+```
+
 ## Reference Files
 
 - `references/assessment-types.md` — Catalog of authentic assessment types with descriptions, Bloom's levels, and effort estimates.
