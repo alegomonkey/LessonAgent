@@ -1,0 +1,11 @@
+Based on the existing evaluation metrics for the agent system, create a new directory that has scripts that execute the same evaluation separately such that we can copy the directory into an older version of the project and the evaluation will still occur. Metric 1: Assignment structure alignment
+  - How it's computed: Graded scale, 0-100; only reflects at the end of the process after acquiring all context (the log is produced alongside the output); updating the proposal when then update all associated metrics.
+  - What it hopes to reflect: Assessing contribution from the user and the agent to analyze assignments and their structure. Aims to provide the user with a general score to compare against their interpretation of their experience using the agent.
+
+- Metric 2: Student goal profile alignment
+  - How it's computed: *Same as Metric 1.*
+  - What it hopes to reflect: Assessing contribution from the user and the agent to construct a goal profile that accurately represents the user, their interests, and their future. Aims to provide the user with a general score to compare against their interpretation of their experience using the agent.
+
+- Metric 3: Potential conflict areas from professor
+  - How it's computed: Prompts the agent to evaluate the output proposal from the perspective of the professor, asking for a severity ranking (low/mid/high) about "concrete reasons a real professor might push back" on the agent's proposal.
+  - What it hopes to reflect: The intended purpose of the agent is to provide a professor/mentor/researcher/etc. with this proposal, so this aims to assess and quantify how the other party may react or respond to this proposal so that the user could hash out potential conflictions.

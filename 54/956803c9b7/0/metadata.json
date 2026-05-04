@@ -1,0 +1,77 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "54956803c9b7",
+  "session_id": "e7ab333e-02f5-4541-9b32-eaa110c21e02",
+  "strategy": "manual-commit",
+  "created_at": "2026-05-04T19:02:01.862197989Z",
+  "branch": "evaluationMetrics",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "evaluation/.gitignore",
+    "evaluation/README.md",
+    "evaluation/logs/.gitkeep",
+    "evaluation/package-lock.json",
+    "evaluation/package.json",
+    "evaluation/personas/freshman-big-dreams/assignment.md",
+    "evaluation/personas/freshman-big-dreams/profile.json",
+    "evaluation/personas/freshman-big-dreams/proposals/.gitkeep",
+    "evaluation/personas/junior-jaded/assignment.md",
+    "evaluation/personas/junior-jaded/profile.json",
+    "evaluation/personas/junior-jaded/proposals/.gitkeep",
+    "evaluation/personas/senior-expert/assignment.md",
+    "evaluation/personas/senior-expert/profile.json",
+    "evaluation/personas/senior-expert/proposals/.gitkeep",
+    "evaluation/reports/.gitkeep",
+    "evaluation/src/client.ts",
+    "evaluation/src/io.ts",
+    "evaluation/src/metrics/assignmentAlignment.ts",
+    "evaluation/src/metrics/goalAlignment.ts",
+    "evaluation/src/metrics/professorAcceptance.ts",
+    "evaluation/src/report/markdown.ts",
+    "evaluation/src/run.ts",
+    "evaluation/src/study.ts",
+    "evaluation/src/types.ts",
+    "evaluation/tsconfig.json"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-4-7[1m]",
+  "turn_id": "15fff5a195e3",
+  "token_usage": {
+    "input_tokens": 73,
+    "cache_creation_tokens": 175095,
+    "cache_read_tokens": 4294507,
+    "output_tokens": 64533,
+    "api_call_count": 48
+  },
+  "session_metrics": {
+    "turn_count": 2
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-05-04T19:02:01.653401474Z",
+    "agent_lines": 2605,
+    "agent_removed": 0,
+    "human_added": 385,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 2990,
+    "total_lines_changed": 2990,
+    "agent_percentage": 87.123745819398,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 0,
+      "user_lines_removed": 0,
+      "agent_lines_added": 2605,
+      "agent_lines_removed": 0
+    }
+  ]
+}

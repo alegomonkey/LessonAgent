@@ -1,0 +1,49 @@
+{
+  "cli_version": "0.5.5",
+  "checkpoint_id": "54956803c9b7",
+  "strategy": "manual-commit",
+  "branch": "evaluationMetrics",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "evaluation/.gitignore",
+    "evaluation/README.md",
+    "evaluation/logs/.gitkeep",
+    "evaluation/package-lock.json",
+    "evaluation/package.json",
+    "evaluation/personas/freshman-big-dreams/assignment.md",
+    "evaluation/personas/freshman-big-dreams/profile.json",
+    "evaluation/personas/freshman-big-dreams/proposals/.gitkeep",
+    "evaluation/personas/junior-jaded/assignment.md",
+    "evaluation/personas/junior-jaded/profile.json",
+    "evaluation/personas/junior-jaded/proposals/.gitkeep",
+    "evaluation/personas/senior-expert/assignment.md",
+    "evaluation/personas/senior-expert/profile.json",
+    "evaluation/personas/senior-expert/proposals/.gitkeep",
+    "evaluation/reports/.gitkeep",
+    "evaluation/src/client.ts",
+    "evaluation/src/io.ts",
+    "evaluation/src/metrics/assignmentAlignment.ts",
+    "evaluation/src/metrics/goalAlignment.ts",
+    "evaluation/src/metrics/professorAcceptance.ts",
+    "evaluation/src/report/markdown.ts",
+    "evaluation/src/run.ts",
+    "evaluation/src/study.ts",
+    "evaluation/src/types.ts",
+    "evaluation/tsconfig.json"
+  ],
+  "sessions": [
+    {
+      "metadata": "/54/956803c9b7/0/metadata.json",
+      "transcript": "/54/956803c9b7/0/full.jsonl",
+      "content_hash": "/54/956803c9b7/0/content_hash.txt",
+      "prompt": "/54/956803c9b7/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 73,
+    "cache_creation_tokens": 175095,
+    "cache_read_tokens": 4294507,
+    "output_tokens": 64533,
+    "api_call_count": 48
+  }
+}
