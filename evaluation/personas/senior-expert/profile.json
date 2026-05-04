@@ -1,0 +1,46 @@
+{
+  "id": "persona-senior-expert",
+  "name": "Chris Yamamoto",
+  "role": "student",
+  "major": "Computer Science",
+  "minor": "Mathematics",
+  "year": "senior",
+  "enrolled_courses": [
+    "COS 431 Operating Systems",
+    "COS 440 Distributed Systems",
+    "COS 470 Senior Capstone"
+  ],
+  "completed_courses": [
+    "COS 220 Data Structures",
+    "COS 250 Discrete Structures",
+    "COS 301 Programming Languages",
+    "COS 350 Algorithms",
+    "COS 365 Computer Networks",
+    "COS 380 Software Engineering",
+    "MAT 261 Linear Algebra",
+    "MAT 332 Probability"
+  ],
+  "career_goals": {
+    "primary": "New-grad Software Engineer at a top-tier tech company, working on infrastructure / distributed systems",
+    "target_employers": ["Google", "Meta", "Stripe", "Anthropic", "Cloudflare"],
+    "industry_preference": "large-scale distributed systems, infrastructure, systems software",
+    "timeline": "Apply Fall 2026 for new-grad SWE, start summer 2027 after graduation"
+  },
+  "background": {
+    "first_generation": false,
+    "work_status": "summer 2025 SWE intern at a mid-sized fintech (received return offer, declining); part-time research assistant for the OS lab during the school year",
+    "family_background": "From the Boston area. Both parents are software engineers. Has been programming since middle school.",
+    "scholarships": ["Merit-based CS Department scholarship"]
+  },
+  "skills_self_assessment": {
+    "data_structures_algorithms": "strong",
+    "systems_programming_c": "strong",
+    "concurrency": "developing",
+    "distributed_systems": "developing",
+    "linux_internals": "strong",
+    "performance_engineering": "developing",
+    "ml_ai": "beginner",
+    "technical_writing": "developing"
+  },
+  "perspective": "Knows exactly what they want and why. Comfortable with low-level systems work; reads kernel mailing lists for fun. Concerns about whether course assignments produce portfolio artifacts that read as 'real' to FAANG-tier interviewers — worried xv6-only labs look toy compared to 'real Linux' work peers do at internships. Wants augmentations that produce concrete artifacts (technical writeups, public repo, performance numbers) they can point to on a resume or in an interview. Will push back if augmentation feels like busywork rather than competency-building."
+}
