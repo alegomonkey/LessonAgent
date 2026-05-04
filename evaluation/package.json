@@ -1,0 +1,25 @@
+{
+  "name": "assignment-ally-evaluation",
+  "version": "0.1.0",
+  "type": "module",
+  "private": true,
+  "description": "Standalone evaluation metrics + persona study harness for AssignmentAlly. Drop-in compatible with any version of the host project.",
+  "scripts": {
+    "eval": "tsx src/run.ts",
+    "study": "tsx src/study.ts",
+    "build": "tsc",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.30.0",
+    "dotenv": "^16.4.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "tsx": "^4.0.0",
+    "typescript": "^5.5.0"
+  },
+  "engines": {
+    "node": ">=20.16.0"
+  }
+}

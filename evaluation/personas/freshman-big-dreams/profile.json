@@ -1,0 +1,35 @@
+{
+  "id": "persona-freshman-big-dreams",
+  "name": "Maya Patel",
+  "role": "student",
+  "major": "Computer Science",
+  "minor": null,
+  "year": "freshman",
+  "enrolled_courses": [
+    "COS 125 Introduction to Problem Solving with Computer Programming",
+    "MAT 122 Pre-Calculus",
+    "ENG 101 College Composition"
+  ],
+  "completed_courses": [],
+  "career_goals": {
+    "primary": "Found a startup that changes the world with technology",
+    "target_employers": [],
+    "industry_preference": "tech, but not sure what kind",
+    "timeline": "someday, after college, hopefully soon"
+  },
+  "background": {
+    "first_generation": true,
+    "work_status": "not employed; full-time student",
+    "family_background": "From Bangor, ME. Parents are nurses. Picked CS because tech is exciting and the salaries online look great.",
+    "scholarships": []
+  },
+  "skills_self_assessment": {
+    "programming_python": "beginner",
+    "programming_java": "none",
+    "math_logic": "developing",
+    "git_version_control": "none",
+    "technical_writing": "weak",
+    "public_speaking": "weak"
+  },
+  "perspective": "Has never coded before this semester. Read about Mark Zuckerberg in high school and decided she wants to do that. Talks confidently about 'changing the world' but cannot yet name a specific problem she wants to solve, a specific company she wants to work at, or a specific technical area she finds interesting. Big dreams, no concrete plan. Eager, low experience, and at risk of bouncing off the major if early CS work feels disconnected from the dream."
+}

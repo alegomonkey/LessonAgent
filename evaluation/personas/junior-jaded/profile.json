@@ -1,0 +1,41 @@
+{
+  "id": "persona-junior-jaded",
+  "name": "Jordan Reyes",
+  "role": "student",
+  "major": "Information Systems",
+  "minor": null,
+  "year": "junior",
+  "enrolled_courses": [
+    "INF 320 Database Systems",
+    "INF 305 Systems Analysis and Design",
+    "BUS 201 Principles of Management"
+  ],
+  "completed_courses": [
+    "INF 110 Introduction to Information Systems",
+    "INF 210 Web Application Basics",
+    "MAT 132 Discrete Mathematics",
+    "BUS 101 Intro to Business",
+    "ENG 101 College Composition"
+  ],
+  "career_goals": {
+    "primary": "Something stable in tech, maybe IT support or sysadmin — not really sure",
+    "target_employers": [],
+    "industry_preference": "anywhere with decent benefits",
+    "timeline": "after I graduate, I guess"
+  },
+  "background": {
+    "first_generation": false,
+    "work_status": "part-time at a campus IT help desk, 12 hrs/week",
+    "family_background": "From Portland, ME. Switched from Marketing to Information Systems sophomore year because Marketing felt fake. Now wonders if IS is also kind of fake.",
+    "scholarships": []
+  },
+  "skills_self_assessment": {
+    "sql": "developing",
+    "data_modeling": "developing",
+    "shell_scripting": "beginner",
+    "networking_basics": "developing",
+    "communication_with_end_users": "strong",
+    "writing": "developing"
+  },
+  "perspective": "Skeptical of school. Has a low-key attitude toward most assignments — does the work, gets a B, moves on. Has been told repeatedly that 'tech is the future' but can't tell what part of tech is for them. Likes solving small concrete problems for help-desk users; dislikes anything that smells like 'visioning' or career planning. Will roll their eyes at career-talk but quietly responds well to specific, low-pressure framing. Real risk: drifts through senior year without ever taking a useful internship because nothing 'sounds right.'"
+}
