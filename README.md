@@ -14,6 +14,8 @@ A web app that helps students build augmented versions of their coursework — r
 
 AssignmentAlly produces formal proposal documents that students present to professors for approval. The professor is not a user of this system; the professor is the audience for the student's proposal.
 
+Try it out on HuggingFace: [AssignmentAlly on Hugging Face](https://huggingface.co/spaces/ClarkLach/AssignmentAlly)
+
 ## How It Works
 
 AssignmentAlly follows a three-step pipeline:
